@@ -1,0 +1,78 @@
+/*
+Given an array of integers, find two numbers such that they add up to a specific target number.
+The function twoSum should return indices of the two numbers such that they add up to the target, 
+where index1 must be less than index2. 
+Please note that your returned answers (both index1 and index2) are NOT zero-based.
+Example
+numbers=[3, 7, 11, 15], target=18
+return [2, 3]
+Note:
+You may assume that each input would have exactly one solution
+*/
+Solution 1(Two pointer)
+/*
+Thoughts:
+First sort the array in asscending 
+Use two pointers, one points to the start of the array, another points to the end of the arry
+Check the sum = nums[start] + nums[end]
+If sum is less than target, move the start point toward the end one index
+If sum is bigger than target, move the end point toward the start one index
+If sum equals target, return the index of start and end
+Complexity: O(Nlog(N))
+*/
+public class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        int[] result = new int[2];
+        if (nums == null || nums.length <= 1) {
+            return result;
+        }
+        Arrays.sort(nums);
+        int start = 0;
+        int end = nums.length - 1;
+        while(start < end) {
+            long sum = (long)(nums[start] + nums[end]);
+            if (target == sum) {
+                result[0] = start + 1;
+                result[1] = end + 1;
+                break;
+            } else if (target > sum) {
+                start++;
+            } else {
+                end--;
+            }
+        }//END while
+        return result;
+    }
+}
+Solution 2(Using HashMap)
+/*
+Push all nums in the array into a HashMap.
+  Loop through the array, check if the remainer(target - current) exist in the HashMap.
+  If the remainer exists in the HashMap, then save it and the current num
+  Trick: after adding into the HashMap, we are looking for the 2nd index first. 
+      Always check the remainer(target - current) from the HashMap. 
+      If exist, that means index0 has already been pushed into the HashMap and current value is at index1.
+  (key, value) = (numbers[i], i)
+Note: return index+1 because this is not 0-based.
+Complexity: O(N) time complexity and O(N) space complexity
+*/
+public class Solution {
+    public int[] twoSum(int[] nums, int target) {
+      int[] result = new int[2];
+      if (nums == null || nums.length <= 1) {
+          return result;
+      }
+      HashMap<Integer, Integer> map = new HashMap<>();
+      for (int i = 0; i < nums.length; i++){
+        int num = target - nums[i];
+        if (map.containsKey(num)){
+        result[0] = map.get(num) + 1;
+        result[1] = i + 1;
+        return result;
+        } else {
+          map.put(nums[i], i);
+        }
+       }
+       return result;
+    }
+  }
