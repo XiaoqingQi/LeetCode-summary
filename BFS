@@ -335,6 +335,8 @@
                       if (point.x == destination.x && point.y == destination.y){
                           return path;
                       }
+                      //Mark current point as visited
+                       grid[point.x][point.y] = true;
                       //Check all 8 possible movements
                       //Put all valid movements into a queue
                       for (int k = 0; k < 8; k++){
@@ -344,7 +346,6 @@
                               continue;
                           }
                           //Mark point which is put into the queue as visited
-                          grid[nextpoint.x][nextpoint.y] = true;
                           q.offer(nextpoint);
                       }
                   }
