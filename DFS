@@ -1,0 +1,4 @@
+In general, most dfs problems can be done using recursion.
+Three elements of recursion: definition of recursion
+                             shrink of recursion
+                             end of recursion
