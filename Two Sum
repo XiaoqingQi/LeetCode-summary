@@ -9,9 +9,9 @@ return [2, 3]
 Note:
 You may assume that each input would have exactly one solution
 */
+
 Solution 1(Two pointer)
 /*
-Thoughts:
 First sort the array in asscending 
 Use two pointers, one points to the start of the array, another points to the end of the arry
 Check the sum = nums[start] + nums[end]
@@ -44,18 +44,20 @@ public class Solution {
         return result;
     }
 }
+
 Solution 2(Using HashMap)
 /*
-Push all nums in the array into a HashMap.
   Loop through the array, check if the remainer(target - current) exist in the HashMap.
   If the remainer exists in the HashMap, then save it and the current num
-  Trick: after adding into the HashMap, we are looking for the 2nd index first. 
-      Always check the remainer(target - current) from the HashMap. 
-      If exist, that means index0 has already been pushed into the HashMap and current value is at index1.
+  If remainer does not exist in the HashMap, then push the current num(which is number[i]) and its index into HashMap.
   (key, value) = (numbers[i], i)
-Note: return index+1 because this is not 0-based.
-Complexity: O(N) time complexity and O(N) space complexity
+  Trick: After adding the current number into the HashMap, we are looking for the 2nd index first. 
+         Always check the remainer(target - current) from the HashMap. 
+         If it exists, that means index0 has already been pushed into the HashMap and current value is at index1.
+  Note: return index+1 because this is not 0-based.
+  Complexity: O(N) time complexity and O(N) space complexity
 */
+
 public class Solution {
     public int[] twoSum(int[] nums, int target) {
       int[] result = new int[2];
