@@ -1,0 +1,42 @@
+====================================================================================================
+Given a string, find the length of the longest substring without repeating characters.
+
+Examples:
+
+Given "abcabcbb", the answer is "abc", which the length is 3.
+
+Given "bbbbb", the answer is "b", with the length of 1.
+
+Given "pwwkew", the answer is "wke", with the length of 3. 
+
+Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+---------------------------------------------------------------------------------------------------
+We use two pointers technique to solve this problem.
+One fast pointer j, One slow pointer i;
+We use a HashSet to store characters j pointer has visited and detect repeating character.
+Firstly, we let the two pointers both point to index 0, the beginning of the string.
+Then, we move j pointer right further. If the current character j is visiting is not in the HashSet, 
+we add it to the HashSet, and move the j pointer right further, update the max length. 
+If the current character j is visiting is already in the HashSet, we remove the character i is visiting 
+and move i forward.
+When j pointer interates all characters in the string, we find the max length of longest substring without repeating characters.
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int maxLength = 0;
+        int i = 0;
+        int j = 0;
+        HashSet<Character> set = new HashSet<>();
+        while (j < s.length()){
+            if (!set.contains(s.charAt(j))){
+                set.add(s.charAt(j));
+                j++;
+                maxLength = Math.max(maxLength, (j-i));
+            } else {
+                set.remove(s.charAt(i));
+                i++;
+            }
+        }
+        return maxLength;
+    }
+}
+====================================================================================================
