@@ -158,4 +158,67 @@ class Solution {
         return result;
     }
 }
+=====================================================================================================================
+Given a binary tree, return the level order traversal of its nodes' values. (ie, from left to right, level by level).
+
+For example:
+Given binary tree [3,9,20,null,null,15,7],
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+
+return its level order traversal as:
+
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+-----------------------------------------------------------------------------------------------------------------------
+We use Queue data structure to solve the problem.
+There are two scenarios: 
+1. If the root is null, return an empty List.
+2. If the root is not null, we put the root in the queue, and we use a variable to store the current size of the queue,
+   then we poll out all nodes of current size, put them in a level list, if the nodes of current size have children,
+   we put them to the queue.
+   If the queue is not empty, repeat the circle.
+   
+ /**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null){
+            return result;
+        }
+        Queue<TreeNode> q = new LinkedList<>();
+        q.offer(root);
+        while (!q.isEmpty()){
+            int size = q.size();
+            List<Integer> list = new ArrayList<>();
+            for (int i = 0; i < size; i++){
+                TreeNode node = q.poll();
+                list.add(node.val);
+                if (node.left != null){
+                    q.offer(node.left);
+                }
+                if (node.right != null){
+                    q.offer(node.right);
+                }
+            }
+            result.add(list);
+        }
+        return result;
+    }
+}
 ============================================================================================================
