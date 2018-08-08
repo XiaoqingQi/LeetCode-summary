@@ -1,0 +1,54 @@
+==============================================================================================================================
+1.Palindrome Permutation
+Given a string, write a function to check if it is a permutation of palindrome.
+A palindrome is a word or phrase that is the same forwwards and backwards.
+A permutation is a rearrangement of letters.
+The palindrome doesn't need to be limited to just dictionary words.
+EXAMPLE
+Input : Tact Coa
+Output : True (permutation : "taco cat" or "atco cta", etc); 
+------------------------------------------------------------------------------------------------------------------------------
+In order to write a set of characters the same way forwards and backwards, we need to have an even number of all most characters,
+so that half can be on one side and half can be on other side. At most one character(the middle character) can have an odd count.
+We use a hash table to count how many times each character appears. Then we iterate through the table and ensure no more than one
+character has an odd count.
+public class PalindromePermutation {
+    boolean isPermutationOfPalindrome(String phrase){
+        //Use a hash table to count how many times each character appears
+        int[] table = buildtable(phrase);
+        //Iterate through the table and ensure no more than one character has an odd count
+        boolean foundOdd = false;
+        for (int i : table){
+            if (i % 2 == 1) {
+                if (foundOdd) {
+                    return false;
+                }
+                foundOdd = true;
+            }
+        }
+        return true;
+    }
+
+    private int[] buildtable(String phrase) {
+        int[] table = new int[Character.getNumericValue('z') - Character.getNumericValue('a') + 1];
+        for (char c : phrase.toCharArray()){
+            int val = getCharNum(c);
+            if (val != -1){
+                table[val]++;
+            }
+        }
+        return table;
+    }
+    //Map each character to a number. a -> 0 b -> 1, c -> 2, etc
+    //This is case insensitive. Non-letter character map to -1
+    private int getCharNum(Character c) {
+        int start = Character.getNumericValue('a');
+        int end = Character.getNumericValue('z');
+        int val = Character.getNumericValue(c);
+        if (val >= start && val <= end){
+            return val - start;
+        }
+        return -1;
+    }
+}
+============================================================================================================================
