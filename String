@@ -1,0 +1,59 @@
+==============================================================================================================================
+1.One Away
+Given two strings, write a function to check if they are one edit(or zero edit) away.
+There are three types of edits that can be performed on strings: insert a character, remove a character, or replace a character
+-------------------------------------------------------------------------------------------------------------------------------
+Solution 1(brute force)
+We could check all possible strings that are one edit away by testing the removal of each character, testing the replacement of
+each character, testing the insertion of each possible character.
+-------------------------------------------------------------------------------------------------------------------------------
+Solution 2
+Let's think about the "meaning" of each of these operations:
+Replacement: Condider two strings, such as bale and pale, that are one replacement away. It means that they are different only
+in one place.
+Insertion: The string aple and apple are one insertion away. It means that if you compared the strings, they would be identical,
+except for a shift at some point in the strings.
+Removal: The string apple and aple are one removla away, since removal is just the inverse of insertion.
+public class OneAway {
+    boolean oneEditAway(String first, String second){
+        if (first.length() == second.length()){
+            return oneEdidReplace(first, second);
+        } else if (first.length() + 1 == second.length()){
+            return oneEditInsert(first, second);
+        } else if (first.length() - 1 == second.length()){
+            return oneEditInsert(second, first);
+        }
+        return false;
+    }
+
+    private boolean oneEditInsert(String first, String second) {
+        int index1 = 0;
+        int index2 = 0;
+        while (index1 < first.length() && index2 < second.length()){
+            if (first.charAt(index1) != second.charAt(index2)){
+                if (index1 != index2){
+                    return false;
+                }
+                index2++;
+            } else {
+                index1++;
+                index2++;
+            }
+        }
+        return true;
+    }
+
+    private boolean oneEdidReplace(String first, String second) {
+        boolean foundDifference = false;
+        for (int i = 0; i < first.length(); i++){
+            if (first.charAt(i) != second.charAt(i)){
+                if (foundDifference){
+                    return false;
+                }
+                foundDifference = true;
+            }
+        }
+        return true;
+    }
+}
+=============================================================================================================================
