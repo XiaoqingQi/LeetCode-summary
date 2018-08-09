@@ -57,3 +57,63 @@ public class OneAway {
     }
 }
 =============================================================================================================================
+2.String Compression
+Implement a method to perform basic string compression using the counts of repeated characters.
+For example, the string aabcccccaaa would become a2b1c5a3.
+If the "compressed" string would not become smaller than the original string, your method should 
+return the original string.
+You can assume the string has only uppercase and lowercase letters.
+-----------------------------------------------------------------------------------------------------------------------------
+We iterate through the string, and copy characters to a new string and counting the repeats.
+At each iteration, check if the current character is the same as the next character.
+If not, add its compressed version to the result.
+public class StringCompression {
+    String compress(String str){
+        StringBuilder sb = new StringBuilder();
+        int countCompress = 0;
+        for (int i = 0; i < str.length(); i++){
+            countCompress++;
+            if (i + 1 >= str.length() || str.charAt(i) != str.charAt(i+1)){
+                sb.append(str.charAt(i));
+                sb.append(countCompress);
+                countCompress = 0;
+            }
+        }
+        return sb.length() < str.length() ? sb.toString() : str;
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------
+Instead, we can check in advance. This will be more optimal in cases where we don't have a large number of repeating characters.
+It will avoid us having to create a string which we never use.
+The downside of this is that it causes a second loop through the characters and add nearly duplicated code.
+ublic class StringCompression {
+    String compress(String str){
+        int finalLength = countCompression(str);
+        if (finalLength <= str.length()){
+            return str;
+        }
+        StringBuilder sb = new StringBuilder();
+        int countCompress = 0;
+        for (int i = 0; i < str.length(); i++){
+            countCompress++;
+            if (i + 1 >= str.length() || str.charAt(i) != str.charAt(i+1)){
+                sb.append(str.charAt(i));
+                sb.append(countCompress);
+                countCompress = 0;
+            }
+        }
+        return sb.length() < str.length() ? sb.toString() : str;
+    }
+    private int countCompression(String str){
+        int finalLength = 0;
+        for (int i  = 0; i < str.length(); i++){
+            finalLength++;
+            if (i + 1 >= str.length() || str.charAt(i) != str.charAt(i+1)){
+                finalLength++;
+            }
+        }
+        return finalLength;
+    }
+}
+============================================================================================================================
+
