@@ -1,0 +1,150 @@
+==============================================================================================================================
+1.Rotate Matrix
+Given an image represented by an N*N matrix, where each pixel in the image is 4 bytes, write a method to rotate the image by 90
+degerees. Can you do this in place?
+------------------------------------------------------------------------------------------------------------------------------
+Solution:
+Because we are rotating the image by 90 degrees, the easiest way to do this is to implement the rotation by layers.
+We perform a circular rotation on each layer, moving the top edge to the right edge, the right edge to the bottom edge,
+the bottom edge to the left edge, the left edge to the top edge.
+How do we perfrom this four-way edges swap?
+One option is to copy the top edge to an array, then move the left to the top, the bottom to the left, and so on.
+This requires O(N) memory, which is not necessary.
+A better way to do this is to implement the swap index by index. 
+In this case, we do the following:
+ for int i = 0 to n
+ temp = top[i]
+ top[i] = left[i]
+ left[i] = bottom[i]
+ bottom[i] = right[i]
+ right[i] = temp
+We perform the wrap on each layer, starting from the outermost layer and working our way inwards. 
+
+public class RotateMatrix {
+    public boolean rotateMatri(int[][] matrix){
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0){
+            return false;
+        }
+        int n = matrix.length;
+        for (int layer = 0; layer < n/2; layer++){
+            int first = layer;
+            int last = n - 1 - first;
+            for (int i = first; i <= last; i++){
+                int offset = i - first;
+                //save top
+                int top = matrix[first][i];
+                //left to top
+                matrix[first][i] = matrix[last-offset][first];
+                //bottom to left
+                matrix[last-offset][first] = matrix[last][last-offset];
+                //right to bottom
+                matrix[last][last-offset] = matrix[i][last];
+                //top to right
+                matrix[i][last] = top;
+            }
+        }
+        return true;
+    }
+}
+============================================================================================================================
+2. Zero Matrix
+Write an algorithm such that if an element in an M*N matrix is 0,its entire row and column are set to zero.
+----------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+Brute force.
+Interate through the matrix, every time we see a cell value zero, set its row and column to zero.
+There is a problem with this solution: when we come across other cells in that row or column, we'll see the zeros and set
+their rows and columns to zero. Pretty soon, our entire matrix will be set to zeros.
+Since we're going to set the entire row an column to zero, we don't need to track that it is exactly cell[1][3].
+We only need to know the row 2 has a zero somewhre, and the column 3 has a zero somewhere.
+We'll set the entire row and column to zero anyway.
+We use two arrays to keep track of all the rows with zeros and all the colunms with zeros.
+We then nullify rows and columns base on the values in these arrays.
+public class ZeroMatrix {
+    public void setZeros(int[][] matrix){
+        boolean[] rowsWithZeros = new boolean[matrix.length];
+        boolean[] columnsWithZeros = new boolean[matrix[0].length];
+        for (int i = 0; i < matrix.length; i++){
+            for (int j = 0; j < matrix[0].length; j++){
+                if (matrix[i][j] == 0){
+                    rowsWithZeros[i] = true;
+                    columnsWithZeros[j] = true;
+                }
+            }
+        }
+        for (int i = 0; i < matrix.length; i++){
+            if (rowsWithZeros[i]){
+                for (int j = 0; j < matrix[0].length; j++){
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        for (int j = 0; j < matrix[0].length; j++){
+            if (columnsWithZeros[j]){
+                for (int i = 0; i < matrix.length; i++){
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+We can reduce the space from O(n) to O(1).
+Using the first row as a replacement for the row array, the first column as a replacement for the column array.
+ 1. Check if the first row and column has any zeros, and set variables rowHasZero, colHasZero.(We'll nullify the first row
+ and first column later, if necessary).
+ 2. Iterate through the rest of the matrix, setting matrix[i][0] and matrix[0][j] to zero whenever there is a zero in matrix[i][j].
+ 3. Iterate through rest of matrix, and nullifying row i if there's a zero in matrix[i][0].
+ 4. Iterate through rest of matrix, and nullifyint column j if there's a zero int matrix[0][j].
+ 5. Nullify the first row and column if necessary.
+ public class ZeroMatrix {
+    public void zetZeros(int[][] matrix){
+        boolean rowHasZero = false, colHasZero = false
+        int row = matrix.length;
+        int col = matrix[0].length;
+        for (int i = 0; i < row; i++){
+            if (matrix[i][0] == 0){
+                colHasZero = true;
+            }
+        }
+        for (int j = 0; j < col; j++){
+            if (matrix[0][j] == 0){
+                rowHasZero = true;
+            }
+        }
+        for (int i = 0; i < row; i++){
+            for (int j = 0; j < col; j++){
+                if (matrix[i][j] == 0){
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
+                }
+            }
+        }
+        for (int i = 0; i < row; i++){
+            if (matrix[i][0] == 0){
+                for (int j = 0; j < col; j++){
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        for (int j = 0; j < col; j++){
+            if (matrix[0][j] == 0){
+                for (int i = 0; i < row; i++){
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        if (rowHasZero){
+            for (int j = 0; j < col; j++){
+                matrix[0][j] = 0;
+            }
+        }
+        if (colHasZero){
+            for (int i = 0; i < row; i++){
+                matrix[i][0] = 0;
+            }
+        }
+    }
+  }
+  ==========================================================================================================================
