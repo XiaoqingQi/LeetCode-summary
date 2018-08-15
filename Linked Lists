@@ -1,0 +1,118 @@
+==============================================================================================================================
+1.Remove Duplicates
+Write code to remove duplicates from an unsorted linked list.
+Follow up:
+How would you solve this problem if a temporary buffer is not allowed ?
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1: 
+In order to move duplicates from a linked list, we need to be able to track duplicates.
+A simple hash table will work well here.
+We iterate through the linked list, add each element to hash table.
+When we found a duplicate element, we remove it and continue iterating.
+We can do this all in one pass since we're using linked list.
+It will take O(N) time, where N is the number of elements in the linked list.
+import java.util.HashSet;
+
+class LinkedListNode{
+    int val;
+    LinkedListNode next;
+
+    public LinkedListNode(int val) {
+        this.val = val;
+    }
+
+    public LinkedListNode(int val, LinkedListNode next) {
+        this.val = val;
+        this.next = next;
+    }
+}
+public class RemoveDuplicates {
+    void removeDups(LinkedListNode head){
+        HashSet<Integer> hashSet = new HashSet<>();
+        LinkedListNode pre = null;
+        while (head != null){
+            if (hashSet.contains(head.val)){
+                pre.next = head.next;
+            } else {
+                hashSet.add(head.val);
+                pre = head;
+            }
+            head = head.next;
+        }
+    }
+ }
+ ---------------------------------------------------------------------------------------------------------------------------
+ Solution 2:
+ No buffer allowed
+ If we don't have a buffer, we can iterate with two pointers: current which iterates through the linked list,
+ runner which checks all subsequent nodes for duplicates.
+ It will take O(N2) time and O(1) space.
+ 
+ void removeDups(LinkedListNode head){
+        LinkedListNode current = head;
+        while (current != null){
+            LinkedListNode runner = current;
+            //Remove future nodes that have the same value
+            while (runner.next != null){
+                if (runner.next.val == current.val){
+                    runner.next = runner.next.next;
+                }  else {
+                    runner = runner.next;
+                }
+            }
+            current = current.next;
+        }
+  }
+ ==============================================================================================================================
+ 2.Return Kth to last
+ Implement an algorithm to find the kth to last element of a singly linked list.
+ Note that if k = 0, the method would return the last element, k = 1 would return the second to last element.
+ The linked list size is not known.
+ ------------------------------------------------------------------------------------------------------------------------------
+ Solution 1:
+ Recursive
+ We recurses through the linked list.
+ When it hits the end, the method passes back a counter set to 0.
+ Each parent call adds 1 to this counter.
+ When the counter equals to k, we know we have reached the kth to last element of the linked list.
+ It will take O(N) space due to the recursive calls.
+ But we can't pass back a node and a counter using normal return statements.
+ One way to do this is to change the problme to simply printing the kth to last element.
+ Then we can pass back the value of the counter simply througt return values.
+ int kthToLast(LinkedListNode head, int k){
+  if (head == null){
+    return 0;
+  }
+  int index = kthToLast(head.next, k);
+  if (index == k){
+    System.out.println(k + "th to last node is " + head.val);
+  }
+  return index;
+ }
+ Another way is to create a class that stores both the node and the counter, and return an instance of that class.
+ ------------------------------------------------------------------------------------------------------------------------------
+ Solution 2:
+ Iterative
+ We can use two pointers, p1 and p2.
+ We place them k nodes apart in the linked list by putting p1 at the beginning and moving p2 k nodes into the list.
+ Then we move them at the same pace.
+ When p2 hit the end of the linked list, p1 would point the kth to last element.
+ This algorithm takes O(1) space and O(N) space.
+ 
+ LinkedListNode nthToLast(LinkedListNode head, int k){
+  LinkedListNode p1 = head;
+  LinkedListNode p2 = head;
+  //move p2 k nodes apart from p1
+  for (int i = 0; i < k; i++){
+    if (p2 == null){
+      return null;
+    }
+    p2 = p2.next;
+  }
+  while (p2 != null){
+    p1 = p1.next;
+    p2 = p2.next;
+  }
+  return p1;
+  
+ }
