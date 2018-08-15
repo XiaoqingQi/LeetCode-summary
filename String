@@ -211,4 +211,27 @@ public class URLify {
     }
 }
 ===========================================================================================================================
-
+5. String Rotation
+ Assume you have a method isSubstring which checks if one word is substring of another.
+ Give two strings, s1 and s2, write a method to check if s2 is a rotation of s1 using only on call to isSubstring.
+ EXAMPLE:
+ "waterbottle" is a rotation of "erbottlewat"
+ -------------------------------------------------------------------------------------------------------------------------
+ In a rotation, we cut s1 into two parts, x and y, and rearrage them to get s2.
+ s1 = xy = waterbottle
+ x = wat
+ y = erbottle
+ s2 = yx;
+ We can see that yx will always be substring of xyxy.
+ Therefore s2 will always substring of s1s1.
+ boolean isRotation(String s1, String s2){
+    int len = s1.length();
+    //Check that s1 and s2 are equal length and not empty
+    if (len = s2.lenght() && len > 0){
+        //Concatenate s1 and s1 with new buffer
+        String s1s1 = s1 + s1;
+        return isSubsting(s1s1, s2);
+    }
+    return false;
+ }
+ 
