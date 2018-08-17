@@ -116,3 +116,149 @@ public class RemoveDuplicates {
   return p1;
   
  }
+ ==============================================================================================================================
+ 3. Delete Middle Node
+ Implement an algorithm to delete a node in the middle of a singly linked list, given only access to that node.
+ Note: the node is any node but the first and last node, not necessarily the exact middle.
+ EXAMPLE:
+ Input: a -> b -> c -> d -> e -> f
+ Output: a -> b -> d -> e -> f
+ -----------------------------------------------------------------------------------------------------------------------------
+Solution:
+In this problem, we are not given access to the head of the linked list.
+The solution is simply to copy the data from the next node over to the current node, and then delete the next node.
+    boolean deleteNode(LinkedListNode node){
+        if (n == null || n.next == null){
+            return false;
+        }
+        LinkedListNode next = node.next;
+        n.val = next.val;
+        n.next = next.next;
+        return true;
+    }
+==============================================================================================================================
+4.Partition
+Write code to partiton a linked list around a value x, such that all nodes less than x come before all nodes righter than
+or equal to x.
+EXAMPLE:
+    Input: 3 -> 5 -> 8 -> 5 -> 10 -> 2-> 1
+    Output: 1 -> 2 -> 3 -> 5 -> 8 -> 5 -> 10
+------------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+Rather than shifting and swapping elements, we can create two different linked lists:
+One from elements less than x, one for elements greater than or equal to x.
+We iterate through our linked list, inserting elements into before list or after list.
+Then we merge the two lists.
+This approach is mostly "stable" in that elements stay in their original order.
+    LinkedListNode partition(LinkedListNode node, int x){
+        LinkedListNode beforeStart = null;
+        LinkedListNode beforeEnd = null;
+        LinkedListNode afterStart = null;
+        LinkedListNode afterEnd = null;
+        while (node != null){
+            LinkedListNode next = node.next;
+            if (node.val < x){
+                //Insert node into end of before list
+                if (beforeStart == null){
+                    beforeStart = node;
+                    beforeEnd = beforeStart;
+                } else {
+                    beforeEnd.next = node;
+                    beforeEnd = node;
+                }
+            } else {
+                //Insert node into end of after list
+                if (afterStart == null){
+                    afterStart = node;
+                    afterEnd = afterStart;
+                } else {
+                    afterEnd.next = node;
+                    afterEnd = node;
+                }
+            }
+            node = next;
+        }
+        if (beforeStaret == null){
+            return afterStart;
+        }
+        //Merge before list and after list
+        beforeEnd.next = afterStart;
+        return beforeStart;
+    }
+------------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+If we don't care about making the elements of the list "stable", then we can instead rearrange the elements by growing 
+the list at the head and tail.
+In this approach, we start a "new" list(usint the existing node)
+Elements bigger than the pivot element are put at the tail, 
+and elements less than the pivot elements are put at the head.
+Each time we insert an element, we update either the head or tail.
+LinkedListNode partition(LinkedListNode node, int x){
+        LinkedListNode head = node;
+        LinkedListNode tail = node;
+        while (node != null){
+            LinkedListNode next = node.next;
+            if (node.val < x){
+                //Insert node at head
+                node.next = head;
+                head = node;
+            } else {
+                //Insert node at tail
+                tail.next = node;
+                tail = node;
+            }
+            node = next;
+        }
+        tail.next = null;
+        //The head has changed, so we need to return it the user.
+        return head;
+    }
+==============================================================================================================================
+5.Sum Lists
+You have two numbers represented by a linked list, where each node contains a digit.
+The digits are sorted in reverse order.
+Write a funciton that adds two numbers and returns the sum as a linked list.
+EXAMPLE
+Input: (7->1->6) + (5->9->2). That is 617 + 295 = 912
+Output:2->1->9
+------------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+First, let's see how exactly addition works.
+    6 1 7
+  + 2 9 5
+  First, we add 5 and 7 to get 12. The 2 becomes the last digit of the number, and 1 gets carried over to the next step.
+  Second, we add 1, 1 and 9 to get 11. The 1 becomes the second digit, and the ohter 1 gets carried over the final step.
+  Finally, we add 1, 6, 2 to get 9.
+  So our value becomes 912.
+  We can mimic this process recursively by adding node by node, carrying over any "excess" data to the next node.
+  Let's walk through the below linked lists:
+    7 -> 1 -> 6
+  + 5 -> 9 -> 2
+  First, we add 5 and 7, getting a result of 12. 2 becomes the first node in our linked list, and we "carry" the 1 to the next
+  sum.
+  Second, we add 1, 1 and 9, getting a result of 11. 1 becomes the second node, and we "carry" the 1 to the next sum.
+  Finally, we add 1, 2 and 6, getting a result of 9. 9 becomes the final element of the linked list.
+  In implementing this code, we must be careful to handle the condition when one linked list is shorter then another.
+  We don't want to get a null pointer exception.
+  
+  LinkedListNode addLists(LinkedListNode l1, LinkedListNode l2, int carry){
+        if (l1 == null && l2 == null && carry == 0){
+            return null;
+        }
+        LinkedListNode result = new LinkedListNode(0);
+        int value = carry;
+        if (l1 != null){
+            value += l1.val;
+        }
+        if (l2 != null){
+            value += l2.val;
+        }
+        result.val = value % 10;
+        if (l1 != null || l2 != null){
+            LinkedListNode more = addLists(l1 == null ? null : l1.next,
+                    l2 == null ? null : l2.next,
+                    value >= 10 ? 1 : 0);
+            result.next = more;
+        }
+        return result;
+    }
