@@ -262,3 +262,141 @@ First, let's see how exactly addition works.
         }
         return result;
     }
+==============================================================================================================================
+6.Follow up 5
+Suppose the digits are stored in forward order. Repeat the problem.
+Input: (6 -> 1 ->7) + (2 -> 9 -> 5)
+Output: 9 -> 1 -> 2
+-----------------------------------------------------------------------------------------------------------------------------
+Solution:
+One list maybe shorter than the other. For example, suppose we were add (1->2->3->4) and (5->6->7).
+We need to know that the 5 should be matched with 2, not the 1.
+We could solve this issue be comparing the lengthts of the lists in the beginning and padding the shorter list with zeros.
+We need to add corresponding digits and pass the carry to the head(passed backward).
+We use a wrapper class to solve the problem.
+
+    class PartialSum {
+        public LinkedListNode sum = null;
+        public int carry = 0;
+    }
+    LinkedListNode addLists(LinkedListNode l1, LinkedListNode l2){
+        int len1 = length(l1);
+        int len2 = length(l2);
+        //Pad the shorter list with zeros
+        if (len1 < len2){
+            l1 = padList(l1, len2 - len1);
+        } else {
+            l2 = padList(l2, len1 - len2);
+        }
+        //Add lists
+        PartialSum sum = addListHelper(l1, l2);
+        if (sum.carry == 0){
+            return sum.sum;
+        } else {
+            LinkedListNode result = insertBefore(sum.sum, sum.carry);
+            return result;
+        }
+    }
+    private PartialSum addListHelper(LinkedListNode l1, LinkedListNode l2){
+        if (l1 == null && l2 == null){
+            PartialSum sum = new PartialSum();
+            return sum;
+        }
+        //Add smaller digits recursively
+        PartialSum sum = addListHelper(l1.next, l2.next);
+        //Add carry to current data
+        int val = sum.carry + l1.val + l2.val;
+        //Insert sum of current digits
+        LinkedListNode full_result = insertBefore(sum.sum, val % 10);
+
+        //Return sum so far, and the carry value
+        sum.sum = full_result;
+        sum.carry = val / 10;
+        return sum;
+    }
+
+    private LinkedListNode padList(LinkedListNode l, int num) {
+        LinkedListNode head = l;
+        for (int i = 0; i < num; i++){
+            head = insertBefore(head, 0);
+        }
+        return head;
+    }
+
+    private LinkedListNode insertBefore(LinkedListNode head, int data) {
+        LinkedListNode node = new LinkedListNode(data);
+        if (head != null){
+            node.next = head;
+        }
+        return node;
+    }
+==============================================================================================================================
+6. Palindrome
+    Implement a function to check if a linked list is a palindrome.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1 :
+We know that, since it's palindrome, the linked list must be the same backwards and forwards.
+So we could reverse the linked list and compare the reversed list to the original list.
+If they are the same, the lists are identical.
+
+boolean isPalindrom(LinkedListNode head){
+        LinkedListNode reversed = reversedAndClone(head);
+        return isEqual(head, reversed);
+    }
+
+    private  boolean isEqual(LinkedListNode l1, LinkedListNode l2){
+        while (l1 != null && l2 != null){
+            if (l1.val != l2.val){
+                return false;
+            }
+            l1 = l1.next;
+            l2 = l2.next;
+        }
+        return l1 == null && l2 == null;
+    }
+    private LinkedListNode reversedAndClone(LinkedListNode node) {
+        LinkedListNode head = null;
+        while (node != null){
+            LinkedListNode n = new LinkedListNode(node.val);
+            n.next = head;
+            head = n;
+            node = node.next;
+        }
+        return head;
+    }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2: Iterative Approach
+We want to detect linked list where the front half of the list is the  reverse of the second half.
+We could solve this issue by reversing the front half using a stack.
+As we don't know the size of the linked list, we can iterate through the linked list, suing fast pointer and slow pointer.
+At each step in the loop, we push the data from the slow pointer onto a stack.
+When the fast pointer hits the end of the linked list, the slow point will have reached the middle of the list.
+Then the stack will have all the elements from the front half of the list, but in revers order.
+Now, we simply iterate through the rest of the list, and compare the node to the top of the stack.
+
+    boolean isPalindrome(LinkedListNode node){
+        LinkedListNode fast = node;
+        LinkedListNode slow = node;
+        Stack<Integer> stack = new Stack<>();
+        //Put the element from the front half onto stack
+        while (fast != null && fast.next != null){
+            stack.push(slow.val);
+            fast = fast.next.next;
+            slow = slow.next;
+        }
+        //Has add number of elements, so skip the middle element
+        if (fast != null){
+            slow = slow.next;
+        }
+        while (slow != null){
+            int top = stack.pop();
+            //If values are different, then the list is not palindrome
+            if (top != slow.val){
+                return false;
+            }
+            slow = slow.next;
+        }
+        return true;
+    }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 3: 
