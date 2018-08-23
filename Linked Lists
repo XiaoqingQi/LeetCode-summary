@@ -331,7 +331,7 @@ We use a wrapper class to solve the problem.
         return node;
     }
 ==============================================================================================================================
-6. Palindrome
+7. Palindrome
     Implement a function to check if a linked list is a palindrome.
 -----------------------------------------------------------------------------------------------------------------------------
 Solution 1 :
@@ -400,3 +400,156 @@ Now, we simply iterate through the rest of the list, and compare the node to the
     }
 -----------------------------------------------------------------------------------------------------------------------------
 Solution 3: 
+=============================================================================================================================
+8. Intersection
+Given two singly linked lists, determine if the two lists intersect.
+Return the intersecting node.
+Note that the intersection is defined based on reference, not value.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution:
+
+Let's draw a picture of intersecting linked lists to get a better feel for what is going on.
+    3 -> 1 -> 5 -> 9
+                     -> 7 -> 2 -> 1
+              4 -> 6
+How would we detect if two linked lists intersect?
+Observe that two intersecting linked lists would always have the same last node.
+Therefore, we can just traverse to the end of each linked list and compare the last nodes.
+
+How would we find where the intersection is ?
+If the linked lists were the same length, we could just traverse through them at the same time. When they colide, that's 
+the intersection. When they are not the same length, we would like to just chop off or ignore those excess nodes.
+
+We can get the lengths at the same time as we get the tails of the linked list.
+
+So the steps are as below:
+1.Run through each linked list to get the length and the tail
+2.Compare the tail, if they are different(by the reference not the value), return null. There is no intersection
+3.Set two pointers to the start of each linked list
+4.On the longer linked list, advance its pointer by the difference in length
+5.Now, traverse on each linked list utill the pointers are the same
+
+This algorithm takes O(A+B) time, where A and B are the lengths of the two linked lists.
+It takes O(1) additional space.
+
+class Result{
+    LinkedListNode tail;
+    int length;
+
+    public Result() {
+    }
+
+    public Result(LinkedListNode tail, int length) {
+        this.tail = tail;
+        this.length = length;
+    }
+}
+public class IntersectionOfLinkedList {
+    LinkedListNode intersection(LinkedListNode l1, LinkedListNode l2){
+        if (l1 == null || l2 == null){
+            return null;
+        }
+        //Get tail an length
+        Result tail1 = getTailAndLength(l1);
+        Result tail2 = getTailAndLength(l2);
+        //If different tail node, there is no intersection
+        if (tail1 != tail2){
+            return null;
+        }
+        //Set pointers to the start of linked lists
+        LinkedListNode shorter = tail1.length < tail2.length ? l1 : l2;
+        LinkedListNode longer = tail1.length > tail2.length ? l1 : l2;
+        //Move the pointer for the longer linked list for the difference in length
+        longer = getKthNode(longer, Math.abs(tail1.length - tail2.length));
+        //Move both pointers, until have a collision
+        while (shorter != longer){
+            shorter = shorter.next;
+            longer = longer.next;
+        }
+        //Return either one
+        return shorter;
+    }
+
+    private LinkedListNode getKthNode(LinkedListNode node, int k) {
+        LinkedListNode cur = node;
+        while (k > 0 && cur != null){
+            cur = cur.next;
+            k--;
+        }
+        return cur;
+    }
+
+    private Result getTailAndLength(LinkedListNode l) {
+        LinkedListNode node = l;
+        int len = 1;
+        while (node.next != null){
+            len++;
+            node = node.next;
+        }
+        return new Result(node, len);
+    }
+}
+============================================================================================================================
+9. Loop Detecion
+Given a circular linked list, implement an algorithm that returns the node at the beginning of the loop.
+---------------------------------------------------------------------------------------------------------------------------
+Solution:
+Detect if a linked list has a loop:
+    An easy way is through the FastRunner / SlowRunner approach.
+    FastRunner moves two steps at a time, SlowRunner moves one step.
+    Then must eventually meet.
+    Suppose that the FastRunner hop over SlowRunner, such that SlowRunner is at spot i and FastRunner is at spot i+1.
+    In the previous step, SlowRunner would be at spot i-1, FastRunner would at spot i+1-2 = i-1.
+    That is they would have collided.
+When do they collide?
+    Let's assume that the distance between the the head of the linked list and the node at the beginning of loop is k.
+    We also use FastRunner and SlowRunner.
+    We know that for every p steps SlowRunner takes, FastRunner has taken 2p steps.
+    When the SlowRunner enters the looped portion after k steps, FastRunner has taken 2k steps total and must be (2k-k) or 
+    k steps into the looped portion.
+    So now we know: SlowRunner is 0 steps into the loop.
+                    FastRunner is k steps into the loop.
+                    SlowRunner is k steps behind the FastRunner.
+                    FastRunner if (LOOP_SIZE - K) steps behind SlowRunner.
+                    FastRunner catches up to SlowRunner at a rate of 1 step per unit of time.
+When do they meet?
+     They meet after (LOOP_SIZE - K) steps. 
+     At this point, they will be k steps before the head of the loop. Let's call this point CollisionSpot.
+How to find the start of the loop?
+    Because the CollisionSpot is k nodes before the start of the loop, and the head of the linked list is k nodes from the loop start.
+    So we can move the CollisionSpot and the head of the linked list at the same time at the same speed, 
+    they will meet after k steps, at that point they will both be at the start of the loop.
+
+Summary:
+    1. Create two pointers, FastRunner and SlowRunner.
+    2. Move FastRunner at a rate of 2 steps and SlowRunner at a rate of 1 step.
+    3. When they meet, use a pointer(CollisionSpot) to refer to the spot.
+    4. Move CollisionSpot and the head of the linked list at a rate of one step. Return the new collision point.
+    
+public class LoopDetectionOfLinkedList {
+    LinkedListNode findBeginning(LinkedListNode head){
+        LinkedListNode slow = head;
+        LinkedListNode fast = head;
+        while (fast != null && slow != null){
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow){
+                break;
+            }
+        }
+        //If no meet point, therefore no loop
+        if (fast == null || fast.next == null){
+            return null;
+        }
+        //Move slow to head, keep fast at meeting point
+        slow = head;
+        //Move them at the same rate, they must meet at the start of the loop
+        while (slow != fast){
+            slow = slow.next;
+            fast = fast.next;
+        }
+        //Return either one
+        return slow;
+    }
+}
+===========================================================================================================================
