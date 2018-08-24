@@ -1,0 +1,157 @@
+==============================================================================================================================
+1. Three in One
+  Describe how you could use a singly array to implement three stacks.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution: fixed division
+We can simply allocating a fixed amount of space for each stack.
+This may cause a situation that when on stack runs out of space, while the others are nearly empty.
+
+We divid the array into three equal parts and allow each stack to grow in its limited space.
+  Stack 1: we will use [1, n/3).
+  Stack 2: we will use [n/3, 2n/3).
+  Stack 3: we will use[2n/3, n).
+  In above, '[' means inclusive, ')' means exclusive.
+
+  import java.util.EmptyStackException;
+
+  public class ThreeInOne {
+    private int numOfStacks = 3;
+    private int capacityOfStack;
+    int[] values;
+    int[] sizes;
+
+    public ThreeInOne(int capacityOfStack) {
+        this.capacityOfStack = capacityOfStack;
+        this.values = new int[capacityOfStack * numOfStacks];
+        this.sizes = new int[numOfStacks];
+    }
+
+    //Push value onto stack
+    public void push(int stackNum, int value) throws FullStackException {
+        //Check that we have space for the next element
+        if (isFull(stackNum)){
+            throw new FullStackException();
+        }
+        //Increment the size of the stack and update top value
+        sizes[stackNum]++;
+        values[indexOfTop(stackNum)] = value;
+    }
+
+    //Pop item from top stack
+    public int pop(int stackNum) {
+        if (isEmpty(stackNum)){
+            throw new EmptyStackException();
+        }
+        int value = values[indexOfTop(stackNum)];//Get top value
+        values[indexOfTop(stackNum)] = 0;//Clear top value
+        sizes[stackNum]--;//Shrink
+        return value;
+    }
+
+    //Return top element
+    public int peek(int stackNum){
+        if (isEmpty(stackNum)){
+            throw new EmptyStackException();
+        }
+        return values[indexOfTop(stackNum)];
+    }
+
+    //Return if stack is empty
+    private boolean isEmpty(int stackNum) {
+        return sizes[stackNum] == 0;
+    }
+
+    //Return the index of the top of the stack
+    private int indexOfTop(int stackNum) {
+        int offeset = stackNum * capacityOfStack;
+        int index = offeset + sizes[stackNum];
+        return index - 1;
+    }
+
+    //Return if stack is full
+    private boolean isFull(int stackNum) {
+        return sizes[stackNum] == capacityOfStack;
+    }
+
+    private class FullStackException extends Exception {
+    }
+    
+}
+=============================================================================================================================
+2.Stack Min
+  Design a stack which, in addition to push and pop, has a function min which returns the minumum element.
+  Pop, push adn min should all operate in O(1) time.
+----------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+  The thing with minumum is that they don't change very often, they only change when a smaller element is added.
+  One solution is to have a single value minVaule, as a member of the Stack.
+  When minValue is popped from the stack, we search through the stack to find the new minimum.
+  But this will break the constraint that push and pop operate in O(1) time.
+  Let's walk through the problem with a short example:
+    push(5); //stack is {5}, min is 5
+    push(6); //stack is {5, 6}, min is 5
+    push(3); //stack is {5, 6, 3}, min is 3
+    push(7); //stack is {5, 6, 3, 7}, min is 3
+    pop(); //stack is {5, 6, 3}, min is 3
+    pop(); //stack is {5, 6}, min is 5
+  Observe once the stack goes back to {5, 6}, its minimum also goes back to its prior state 5.
+  So if we keep track of the minimum at each state, we would be able to know the minumum.
+  We can do this by having each node record that what the minimum beneath itself is.
+  So to find the minimum, we just look at what the top element thinks is the min.
+  import java.util.Stack;
+
+public class StackMin extends Stack<NodeWithMin> {
+    public void push(int value){
+        int newMin = Math.max(value, min());
+        super.push(new NodeWithMin(value, newMin));
+    }
+
+    private int min() {
+        if (isEmpty()){
+            return Integer.MAX_VALUE;
+        }
+        return peek().min;
+    }
+}
+class NodeWithMin {
+    int val;
+    int min;
+
+    public NodeWithMin(int val, int min) {
+        this.val = val;
+        this.min = min;
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+Solution 1 has one issue that if we have a large stack, we waster a lot of space by keeping track of the min for every
+single element.
+We can do a little better than this by using an additional stack which keeps track of the mins.
+public class StackMin extends Stack<Integer> {
+    Stack<Integer> minStack;
+    public StackMin () {
+        minStack = new Stack<Integer>();
+    }
+    public void push(int value){
+        if (value <= min()){
+            minStack.push(value);
+        }
+        super.push(value);
+    }
+    public Integer pop(){
+        int value = super.pop();
+        if (value == min()){
+            minStack.pop();
+        }
+        return value;
+    }
+
+    private int min() {
+        if (minStack.isEmpty()){
+            return Integer.MAX_VALUE;
+        } else {
+            return minStack.peek();
+        }
+    }
+}
+=============================================================================================================================
