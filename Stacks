@@ -298,3 +298,84 @@ public class SetOfStacks {
     }
 }
 =============================================================================================================================
+4. Queue Implement
+  Implement a MyQueue class which implements a queue using two stacks.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution:
+  Since the major difference between a queue and a stack is the order(first in first out vs first in last out),
+  we know that we need to modify peek() and pop() to go in reverse order.
+  We can use our second stack to reverse the order of the elements (by popping s1 and pushing the elements on to s2).
+  In this implementation, on each peek() and pop() operation, we would pop everyting from s1 onto s2, perform peek()/pop(),
+  then push everyting back.
+  If two peek()/pop() operations are performed back to back, we're needlessly moving elements.
+  We can implement another approach, stackNewest has the newest elements on top, stackOldest has the oldest elements on top.
+  When we dequeue an element, we want to remove the oldest element first, then we dequeue from stackOldest.
+  If stackOldest is empty, then we want to tranfer all elements in stackNewest into this stack in reverse order.
+  To insert an element, we push onto stackNewest, since it has the newest element on top.
+    import java.util.Stack;
+
+public class QueueImplementUsingTwoStacks {
+    Stack<Integer> stackNewest, stackOldest;
+    public QueueImplementUsingTwoStacks(){
+        stackNewest = new Stack<Integer>();
+        stackOldest = new Stack<Integer>();
+    }
+    public void add(int value){
+        //Push onto stackNewest, which has the newest element on top
+        stackNewest.push(value);
+    }
+    public int remove(){
+        //Make sure stackOldest has the current element
+        shiftStack();
+     
+        //Pop the oldest item
+        return stackOldest.pop();
+    }
+    public int peek(){
+        shiftStack();
+
+        return stackOldest.peek();
+    }
+
+    private void shiftStack() {
+        if (stackOldest.isEmpty()){
+            while (!stackNewest.isEmpty()){
+                stackOldest.push(stackNewest.pop());
+            }
+        }
+    }
+}
+=============================================================================================================================
+5. Sort stack
+  Write a program to sort a stack such that the smallest items are on the top.
+  You can use an additional temporary stack.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution:
+  Imagin we have two stacks, s1 is the original stack (unsorted), s2 is sorted.
+    s1    s2
+    
+    5     12
+    10    8
+    7     3
+          1
+  We sort s1 by inserting each element from s1 in order into s2.
+  When we pop 5 from s1, we need to find the right place in s2 to insert this element.
+  In this case, the correct place is just above 3 on s2. How do we get there?
+  We can do this by popping 5 from s1 and holding it in a temparary variable.
+  Then we move 12 and 8 over to s1 and then push 5 onto s2.
+  Note that 12 and 8 are still on s1, that's ok, we just repeat the same steps for those two numbers as we did for 5.
+    public void sort(Stack<Integer> s){
+      Stack<Integer> r = new Stack<>();
+      while (!s.isEmpty()){
+        //Insert each element in s into sorted r
+        int tmp = s.pop();
+        while (!r.isEmpty() && r.peek() > tmp){
+          s.push(r.pop());
+        }
+        r.push(tmp);
+      }
+      //Copy the elements from r to s
+      while (!r.isEmpty()){
+        s.push(r.pop());
+      }
+    }
