@@ -155,3 +155,146 @@ public class StackMin extends Stack<Integer> {
     }
 }
 =============================================================================================================================
+3. Stack of Plates
+  Imagine a stack of plates. If the stack goes too high, it might topple.
+  Therefore, in real life, we would likely start a new stack when the previous stack exceeds some threshold.
+  Implement a datastructure SetOfStacks that mimics this. 
+  SetOfStacks should be composed of several stacks and should create a new stack once the previous one exceeds capasity.
+  SetOfStacks.push() and SetOfStacks.pop() should behave identically to a single stack.
+  FOLLOW UP:
+  Implement a function popAt(int index) which performs a pop operation on a specific substack.
+  --------------------------------------------------------------------------------------------------------------------------
+  Solution:
+    We know that push() should behave identically to a single stack which means that we need push() to call push() on the last
+    stack in the arrays of stacks.
+    We have to be a bit careful here though:
+    if the last stack is at its capacity, we need to create a new stack.
+    The pop() should behave similarly to push() in that it should operate on the last stack.
+    If the last stack is empty(after popping), then we need to remove the stack from the list of stacks.
+    Implement popAt(int index):
+    We can imagine a "rollover" system.
+    If we pop an element from stack 1, we need to remove the bottom of stack 2 and push it onto stack 1.
+    Then we need to rollover from stack 3 to stack 2, stack 4 to stack 3, etc.
+    import java.util.ArrayList;
+import java.util.EmptyStackException;
+
+public class SetOfStacks {
+    public ArrayList<Stack> stacks = new ArrayList<>();
+    public int capacity;
+
+    public SetOfStacks(int capacity) {
+        this.capacity = capacity;
+    }
+    public void push(int v){
+        Stack lastStack = getLastStack();
+        if (lastStack != null && !lastStack.isFull()){
+            //Add to last stack
+            lastStack.push(v);
+        } else {
+            //Create a new stack
+            Stack stack = new Stack(capacity);
+            stack.push(v);
+            stacks.add(stack);
+        }
+    }
+
+    public int pop(){
+        Stack lastStack = getLastStack();
+        if (lastStack == null){
+            throw new EmptyStackException();
+        }
+        int v = (int)lastStack.pop();
+        if (lastStack.size == 0){
+            stacks.remove(stacks.size() - 1);
+        }
+        return v;
+    }
+
+    public int popAt(int index){
+        return leftShift(index, true);
+    }
+
+    private int leftShift(int index, boolean removeTop) {
+        Stack stack = stacks.get(index);
+        int remove_item;
+        if (removeTop){
+            remove_item = (int) stack.pop();
+        } else {
+            remove_item = stack.removeBottom();
+        }
+        if (stacks.size() > index + 1){
+            int v = leftShift(index + 1, false);
+            stack.push(v);
+        }
+        return remove_item;
+    }
+
+    private Stack getLastStack() {
+        if (stacks.size() == 0){
+            return null;
+        }
+        return stacks.get(stacks.size() - 1);
+    }
+    class Stack{
+        private int capacity;
+        public Node top, bottom;
+        public int size = 0;
+
+        public Stack(int capacity) {
+            this.capacity = capacity;
+        }
+        public boolean isFull(){
+            return capacity == size;
+        }
+        public void join(Node above, Node below){
+            if (below != null){
+                below.above = above;
+            }
+            if (above != null){
+                above.below = below;
+            }
+        }
+        public boolean push(int v){
+            if (size >= capacity){
+                return false;
+            }
+            size++;
+            Node n = new Node(v);
+            if (size == 1){
+                bottom = n;
+            }
+            join(n, top);
+            top = n;
+            return true;
+        }
+        public int pop(){
+            Node n = top;
+            top = top.below;
+            size--;
+            return n.value;
+        }
+        public boolean isEmpty(){
+            return size == 0;
+        }
+        public int removeBottom(){
+            Node b = bottom;
+            bottom = bottom.above;
+            if (bottom != null){
+                bottom.below = null;
+            }
+            size--;
+            return b.value;
+        }
+    }
+    
+    class Node{
+        int value;
+        Node above;
+        Node below;
+
+        public Node(int value) {
+            this.value = value;
+        }
+    }
+}
+=============================================================================================================================
