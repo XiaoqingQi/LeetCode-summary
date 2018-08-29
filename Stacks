@@ -379,3 +379,90 @@ Solution:
         s.push(r.pop());
       }
     }
+ =============================================================================================================================
+ 6. Animal Shelter
+  An animal shelter which holds only dogs and cats, operates on a strickly "first in first out" basis.
+  People must adopt either the "oldest"(based on arrival time) of all animals at the shelter, or they can 
+  select whether they prefer a dog or a cat. They cannot select which specific animal they would like.
+  Create a data structure to maintain this system and implement operations such as enqueue, dequeueAny, dequeueDog, dequeueCat.
+  You may use LinkedList data structure.
+------------------------------------------------------------------------------------------------------------------------------
+Solution:
+  We can use separate queue for dogs and cats and place them within a wrapple class.
+  We then store some sort of timestamp to mark when each animal was enqueued.
+  When we call dequeueAny, we peek at the heads of both the dog and cat queue and return the oldest.
+    
+import java.util.LinkedList;
+
+public class AnimalShelter {
+
+    LinkedList<Dog> dogs = new LinkedList<Dog>();
+    LinkedList<Cat> cats = new LinkedList<Cat>();
+    private int order = 0; //acts as timestamp
+    
+    public void enqueue(Animal a){
+        a.setOrder(order);
+        order++;
+        if (a instanceof Dog){
+            dogs.addLast((Dog) a);
+        } else if (a instanceof Cat){
+            cats.addLast((Cat) a);
+        }
+    }
+    
+    public Animal dequeueAny(){
+        if (dogs.size() == 0){
+            return dequeueCat();
+        }
+         else if (cats.size() == 0){
+            return dequeueDog();
+        }
+        Dog dog = dogs.peek();
+        Cat cat = cats.peek();
+        if (dog.isOlderThan(cat)){
+            return dequeueDog();
+        } else {
+            return dequeueCat();
+        }
+    }
+
+    private Animal dequeueDog() {
+        return dogs.poll();
+    }
+
+    private Animal dequeueCat() {
+        return cats.poll();
+    }
+}
+abstract class Animal {
+    private int order;
+    protected String name;
+
+    public Animal(String name) {
+        this.name = name;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public boolean isOlderThan(Animal a){
+        return this.getOrder() < a.getOrder();
+    }
+}
+class Dog extends Animal {
+    public Dog(String name) {
+        super(name);
+    }
+}
+class Cat extends Animal {
+    public Cat(String name) {
+        super(name);
+    }
+}
+It is important that Dog and Cat both inherit from an Animal class since dequeueAny() needs to support returing both Dag and Cat.
+============================================================================================================================= 
