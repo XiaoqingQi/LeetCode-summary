@@ -1,0 +1,73 @@
+==============================================================================================================================
+1. Route between nodes
+  Given a directed graph, design an algorithm to find out whether there is a route between two nodes.
+------------------------------------------------------------------------------------------------------------------------------
+Solution:
+  We can solve this problem by traversing the graph.
+  We start by one of the two nodes, and during traversal, check if the other node is found.
+  We should mark any node we found during traversal as "visited" to avoid cyclys and repetition of the nodes.
+  
+  The code below provides an implementation of breadth-first search.
+  public class RouteBetweenNodes {
+    public boolean search(Graph g, Node start, Node end){
+        if (start == end){
+            return true;
+        }
+        LinkedList<Node> queue = new LinkedList<>();
+        for (Node n : g.nodes){
+            n.state = State.Unvisited;
+        }
+        start.state = State.Visiting;
+        queue.offer(start);
+        Node u;
+        while (!queue.isEmpty()){
+            u = queue.poll();
+            for (Node n : u.connections){
+                if (n.state == State.Unvisited){
+                    if (n == end){
+                        return true;
+                    } else {
+                        n.state = State.Visiting;
+                        queue.offer(n);
+                    }
+                }
+            }
+            u.state = State.Visited;
+        }
+        return false;
+    }
+  }
+  enum State {Unvisited, Visited, Visiting};
+
+class Node {
+    public int value;
+    public List<Node> connections;
+    public State state;
+
+    public Node(int value) {
+        this.value = value;
+        connections = new ArrayList<>();
+    }
+}
+class Graph {
+    public List<Node> nodes;
+}
+
+And the depth-first search implementation is below:
+public boolean search(Node start, Node end){
+        boolean[] result = new boolean[1];
+        dfs(start, end, result);
+        return result[0];
+    }
+    private void dfs(Node start, Node end, boolean[] result){
+        if (start == end){
+            result[0] = true;
+        }
+        if (start == null){
+            return;
+        }
+        for (Node node : start.connections){
+            dfs(node, end, result);
+        }
+    }
+============================================================================================================================
