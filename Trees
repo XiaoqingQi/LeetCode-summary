@@ -73,7 +73,7 @@ Solution 1:
       }
       LinkedList<TreeNode> list = null;
       //Levels are always traversed in order. So if this is the first time we've visited level i, we must have seen
-      level 0 through i -1. We can therefore add the level at the end.
+      //level 0 through i -1. We can therefore add the level at the end.
       if (lists.size() == level){ //Level not contained in list
         list = new LinkedList<>();
         lists.add(list);
@@ -116,3 +116,141 @@ Solution 2:
     }
   }
 ==============================================================================================================================
+3. Check Balanced
+  Implement a function to check if a binary tree is balanced.
+  A balanced tree is a tree that the height of the two subtrees of any node never differ by more than one.
+------------------------------------------------------------------------------------------------------------------------------
+Solution:
+  We can simply recurse through the entire tree, and for each node, compute the heights of each subtree.
+  public class BalancedTree {
+    private int getHeight(TreeNode node){
+      //Define the height of a null tree to be -1
+        if (node == null){
+            return -1;
+        }
+        return Math.max(getHeight(node.left) + 1, getHeight(node.right) + 1);
+    }
+    public boolean isBalanced(TreeNode root){
+        //Base case
+        if (root == null){
+            return true;
+        }
+        int leftHeight = getHeight(root.left);
+        int rightHeight = getHeight(root.right);
+        if (Math.abs(leftHeight - rightHeight) > 1){
+            return false;
+        } else {
+            //Recurse
+            return isBalanced(root.left) && isBalanced(root.right);
+        }
+    }
+}
+
+In this method, on each node, we recurse through its entire subtree.
+This means that getHeight is called repeatedly on the same nodes.
+It takes O(Nlog N) time.
+
+In order to cut out some of the calls to getHeight, we notice that the getHeight could actually check if the tree is
+balanced at the same time as it's checking heights. And if we dicover that subtree isnot balanced, just return an error code.
+So the improved algorithm is checkding the height of each subtree as we recurse dowm from the root.
+On each node, we recursively get the heights of the lfet and right subtree through the checkHeight mehthod.
+If the subtree is balanced, then checkHeight will return the actual height of the subtree.
+If the subtree isnot balanced, then checkHeight will return an error code.
+We will immediately break and return the error code from the current call.
+This algorithm takes O(N) time and O(H) space, H is the height of the tree.
+
+  private int checkHeight(TreeNode node){
+    if (node == null){
+      return -1;
+    }
+    int leftHeight = checkHeight(node.left);
+    if (leftHeight == Integer.MIN_VALUE){
+      return Integer.MIN_VALUE;
+    }
+    int rightHeight = checkHeight(node.right);
+    if (rightHeight == Integer.MIN_VALUE){
+      return Integer.MIN_VALUE;
+    }
+    if (Math.abs(leftHeight - rightHeight) > 1){
+      return Integer.MIN_VALUE;
+    } else {
+      return Math.max(leftHeight, rightHeight) + 1;
+    }
+  }
+  public boolean isBalanced(TreeNode root){
+    return checkHeight(root) != Integer.MIN_VALUE;
+  }
+=============================================================================================================================
+4. Validate BST
+  Implement a function to check if a binary tree is a binary search tree.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+  We can do an in-order traversal, copy the elements to an array, and then check to see if the array is sorted.
+  This algorithm takes extra memory, and the only problem is that it can't handle duplicate vaues in the tree properly.
+  So in order to use this algorithm, we need to assume that the tree cann't have duplicate values.
+    private int index = 0;
+    public boolean checkBST(TreeNode root){
+      int[] array = new int[root.size];
+      copyBST(root, array);
+      for (int i = 1; i < array.length; i++){
+        if (array[i] <= array[i-1]) return false;
+      }
+      return true;
+    }
+    private void copyBST(TreeNode node, int[] array){
+      if (node == null){
+        return;
+      }
+      copyBST(node.left, array);
+      array[index++] = node.value;
+      copyBST(node.right, array);
+    }
+    
+  When we examine this solution, we find that we use the array only to compare an element to the previous element.
+  So we can just track the last element we saw and compare it with the current element as we go.
+  public class ValidateBST {
+    Integer last_printed = null;
+    public boolean validateBST(TreeNode root){
+        //Base case
+        if (root == null){
+            return true;
+        }
+        //Check and recurse left
+        if (!validateBST(root.left)){
+            return false;
+        }
+        //Check current
+        if (last_printed != null && root.value <= last_printed){
+            return false;
+        }
+        last_printed = root.value;
+        //Check and recurse right
+        if (!validateBST(root.right)){
+            return false;
+        }
+        return true;
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+  The condition for a tree to be a binary search tree is that all left nodes must be less than or equal to the current node,
+  all right nodes must be greater than the current node.
+  We can use two variables to track the min and max values, as we iterate through the tree, we can verify whether each node 
+  is within the range.
+  When we branch left, we update the max value. When we branch right, we update the min value.
+  This algorithm takes O(N) time.
+    public boolean checkBST(TreeNode root){
+      return check(root, null, null);
+    }
+    private boolean check(TreeNode node, Integer min, Integer max){
+      if (node == null){
+        return true;
+      }
+      if ((min != null && node.value <= min) || (max != null && node.valu > max)){
+        return false;
+      }
+      if (!check(root.left, min, node.value) || !check(root.right, node.value, max)){
+        return false;
+      }
+      return true;
+    }
