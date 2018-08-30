@@ -1,0 +1,118 @@
+==============================================================================================================================
+1. Minimal Tree
+  Given a sorted array (increasing order) with unqiue integer elements, write an algorithm to create a binary search tree 
+  with minimal height.
+------------------------------------------------------------------------------------------------------------------------------
+Solution:
+  To create a tree of minimal height, we need to math the number of nodes in the left subtree to the number of nodes in the 
+  right subtree as much as possible.
+  This means that we want the root to be the middle of the array, since this would mean that half the elements would be less
+  than the root and half would be greater than the root.
+  So during the process, the middle of each subsection of the array becomes the root of the node.
+  The left half of the array will become our left subtree, the right half of the array will become the right subtree.
+  We can do this recursively.
+  The algorithm is as follows:
+    Insert into the tree the middle of the array.
+    Insert into the left subtree the left subarray elements.
+    Insert into the right subtree the rignth subarray elements.
+    
+    public class MinumalTree {
+      public TreeNode createMinimalBST(int[] array) {
+          int start = 0;
+          int end = array.length - 1;
+          return help(array, start, end);
+      }
+
+      private TreeNode help(int[] array, int start, int end) {
+          //base case
+          if (end < start){
+              return null;
+          }
+          int mid = (start + end)/2;
+          TreeNode root = new TreeNode(array[mid]);
+          root.left = help(array, start, mid - 1);
+          root.right = help(array, mid + 1, end);
+          return root;
+      }
+    
+    }
+    class TreeNode {
+        int value;
+        TreeNode left;
+        TreeNode right;
+
+        public TreeNode(int value) {
+            this.value = value;
+        }
+    }
+==============================================================================================================================
+2.List of Depths
+  Given a binary tree, design an algorithm which creates a linked list of all the nodes at each depth.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+  We can solve this problem using depth-first search.
+  At each level, we put the nodes on that level into the corresponding linked list.
+  
+  class TreeNode {
+    int value;
+    TreeNode left;
+    TreeNode right;
+    public TreeNode (int v){
+      this.value = v;
+    }
+  }
+  public class Demo {
+    public ArrayList<LinkedList<TreeNode>> createLevelLinkedList(TreeNode root){
+      ArrayList<LinkedList<TreeNode>> lists = new ArrayList<>();
+      help(root, result, 0);
+      return lists;
+    }
+    public void help(TreeNode root, ArrayList<LinkedList<TreeNode>> lists, int level){
+      if (root == null) {
+        return;
+      }
+      LinkedList<TreeNode> list = null;
+      //Levels are always traversed in order. So if this is the first time we've visited level i, we must have seen
+      level 0 through i -1. We can therefore add the level at the end.
+      if (lists.size() == level){ //Level not contained in list
+        list = new LinkedList<>();
+        lists.add(list);
+      } else {
+        list = lists.get(level);
+    }
+      list.add(root);
+      help(root.left, lists, level + 1);
+      help(root.right, lists, level + 1);
+  }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+  We can solve the problem using breath-first search.
+  We interate through the tree from level 0, to level 1 level 2, and so on.
+  With each level i, we will have fully visited all the nodes on level i - 1.
+  So to get all nodes on level i, we can simply look at all children of the nodes of levle i - 1.
+  public class Demo {
+    public ArrayList<LinkedList<TreeNode>> createLevelLinkedList(TreeNode root){
+      ArrayList<LinkedList<TreeNode>> lists = new ArrayList<>();
+      if (root == null){
+        return lists;
+      }
+      LinkedList<TreeNode> current = new LinkedList<>();
+      current.add(root);
+      while (current.size > 0) {
+      //Add previous level
+        lists.add(current);
+        LinkedList<TreeNode> parents = current;
+        current = new LinkedList<>();
+        for (TreeNode parent : parents){
+          if (parent.left != null) {
+            current.add(parent.left);
+          }
+          if (parent.right != null){
+            current.add(parent.right);
+          }
+        }
+      }
+      return lists;
+    }
+  }
+==============================================================================================================================
