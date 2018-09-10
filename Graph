@@ -71,3 +71,62 @@ public boolean search(Node start, Node end){
         }
     }
 ============================================================================================================================
+2.Build Order
+  Find a build order that will allow the projects to be built.
+  Input:
+    projects: a,b,c,d,e,f
+    dependencies:(a,d), (f,b), (b,d), (f,a), (d,c)
+  Output:
+    f,e,a,b,d,c
+---------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+  We can draw a directed graph using the given information.
+  1. We first add the nodes with no incoming edges. If there are not that nodes, there must be a circle in the graph, return error.
+  2. We remove all outgoing edges from these roots. Once those root projects were built, it doesn't matter if another project
+     depends on them.
+  3. Then we find the nodes that now have no incoming edges. Using the same logic from step 1 and 2.
+      Repeat the same steps: find nodes with no dependencies, add them to the build order, remove their outgoing edges, and repeat.
+  4.If there are nodes remaining, but all have dependencies, this means there is no way to build the system. We should return an error.
+  Implementation:
+    1. Build a graph where each project is a node and its outgoing edges represent the projects that depend on it.
+    2. Create a queue to hold the nodes with no incoming edges, and pop nodes from it.
+    3. Initialize a buildOrder array. Use a index pointer to point to the buildOrder array, once we find a node with zero
+       incoming edges, we put it to position where the index currently point points to in the builOrder array,
+       and let the index plus 1.
+    4.Find all nodes with zero incoming edges and put them into the queue.
+    5. Pop nodes from the queue untill the queue is empty. Every time we pop a node from the queue, we remove all outgoing
+       edges from the node. And if we find nodes with zero incoming edges, we put them into the queue.
+---------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+  We can use depth-first search to find the build path.
+  f->c->a->e
+  f->b->h
+  f->a->e
+  b->a->e
+  a->e
+  Suppose we picked a node(say b) randomly, and performed a dfs on it.
+  When we got to the end of a path and can't go an further, 
+  we know that those terminating nodes can be the last projects to be built, no prejects depend on them.
+  dfs(b)
+    dfs(h)
+      build order = ..., h
+    dfs(a)
+      dfs(e)
+        build order = ..., e,h
+      ...
+    ...
+    Now consider what happens at node a when we return from the dfs(e).
+    We know a's children need to appear after a in the build order.
+    So, once we return from searching a's children(therefore they have beed added),
+    we can choose to add a to the front of the build order.
+    Once we return from a, and complete the dfs of b's other children, then everything that must appear after b in the list.
+    Add b to the front.
+    Thinking about the issue of cycles.
+    A cycle will happen if, while doing a dfs on a node, we run back into the same node.
+    We need a signal that indicates"I'm still processing this node, so if you see the node again, we have a problem".
+    We can mark the node we are processing as " visiting" state just befor we start dfs on it.
+    When we are done with this node's dfs, we need to update the state as "Visited".
+    So we have three states on each node: visiting, visited, blank.
+    
+  
+============================================================================================================================
