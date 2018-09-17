@@ -255,4 +255,112 @@ Solution 2:
       return true;
     }
 =============================================================================================================================
-5.
+5.Lowest Common Ancestor
+Find the first commont ancestro of two nodes in a binary tree.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1
+  With links to Parents
+  If each node has a link to its parent, we could trace p and q's paths up until they intersect.
+    TreeNode commonAncestor(TreeNode p, TreeNode q){
+      int dif = depth(p) - depth(q);
+      TreeNode first = dif > 0 ? q : p; //get shadlower node
+      TreeNode second = dif > 0 ? p : q; //get deeper node
+      second = goUpBy(second, Math.abs(dif)); //move deeper node up
+      //Find where paths intersect
+      while (first != second && first != null && second != null){
+        first = first.parent;
+        second = second.parent;
+      }
+      return fist == null || second == null ? null : first;
+    }
+    TreeNode goUpBy(TreeNode node, int depth){
+      while (depth > 0 && node != null){
+        node = node.parent;
+        depth--;
+      }
+      return node;
+    }
+    int depth(TreeNode node){
+      int depth = 0;
+      while (node != null){
+        node = node.parent;
+        depth++;
+      }
+      return depth;
+    }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2
+  Without links to parent
+  We could follow a chain in which p and q are on the same side.
+  If p and q are both on the left of the node, branch left to look for the common ancestor.
+  If they are both on the right, branch right to look for the common ancestor.
+  When p and q are no longer on the same side, then we must have found the first common ancestor.
+    TreeNode commonAncestor(TreeNode root, TreeNode p, TreeNode q){
+    //Check if p or q is in the tree or not
+      if (!cover(root, p) || !cover(root,q)){
+      return null;
+      return helper(root, p, q);
+    }
+    TreeNode helper(TreeNode root, TreeNode p, TreeNode q){
+      if (root == null || root == p || root == q){
+        return root;
+      }
+      boolean pIsOnLeft = cover(root.left, p);
+      boolean qIsOnLeft = cover(root.left, q);
+      if (pIsOnLeft != qIsOnLeft){ //Nodes are on different side
+        return root;
+      }
+      TreeNode childSide = pIsOnLeft ? root.left : root.right;
+      return helper(childSide, p, q);
+    }
+    boolean cover(TreeNode root, TreeNode p){
+      if (root == null){
+        return false;
+      }
+      if (root == p){
+        return true;
+      }
+      return cover(root.left, p) || cover(root.right, p);
+    }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 3
+  Without links to parent
+  We can find the path from the root to node p and q.
+  Then we check the two paths to find the first common ancestor.
+     public TreeNode lowestCommonAncestro(TreeNode root, TreeNode p, TreeNode q){
+        Stack<TreeNode> pathTop = pathToNode(root, p);
+        Stack<TreeNode> pathToq = pathToNode(root, q);
+        TreeNode ancestor = null;
+        while (!pathTop.isEmpty() && !pathToq.isEmpty()){
+            TreeNode node1 = pathTop.pop();
+            TreeNode node2 = pathToq.pop();
+            if (node1 == node2){
+                ancestor = node1;
+            } else {
+                return ancestor;
+            }
+        }
+        return null;
+    }
+
+    private Stack<TreeNode> pathToNode(TreeNode root, TreeNode node) {
+        if (root == node){
+            Stack<TreeNode> stack = new Stack<>();
+            stack.push(node);
+            return stack;
+        }
+        if (root == null){
+            return null;
+        }
+        Stack<TreeNode> leftPath = pathToNode(root.left, node);
+        if (leftPath != null){
+            leftPath.add(root);
+            return leftPath;
+        }
+        Stack<TreeNode> rightPath = pathToNode(root.right, node);
+        if (rightPath != null){
+            rightPath.add(root);
+            return rightPath;
+        }
+        return null;
+    }
