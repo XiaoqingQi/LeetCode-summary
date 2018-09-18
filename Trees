@@ -364,3 +364,151 @@ Solution 3
         }
         return null;
     }
+=============================================================================================================================
+6.Check Subtree
+  T1 and T2 are two very large binary trees, with T1 much bigger than T2. Create an algorithm to determine if T2 is a subtree of T1.
+-----------------------------------------------------------------------------------------------------------------------------
+ Solution 1
+  In this problem, we could consider comparing string representations of traversals of each tree.
+  If T2 is a subtree of T1, then T2's traversal should be a substring of T1.
+  Should we use in-order traversal?
+  Considering a scenario in which we were using a binary search tree.
+  A binary search tree's in-order traversal always prints out the values in sorted order.
+  Therefore, two binary search trees with the same values will always have the same in-order traversals,
+  even if their structure is different.
+  What about a pre-order traversal?
+  We know the first element in pre-order traversal is the root node.
+  Unfortunately, trees with different structure could still have the same pre-order traversal.
+  There's a simple fix though.
+  We can store NULL node in pre-order traversal string as a special character, like an 'X'.
+  As long as we represent the NULL nodes, the pre-order traversal of a tree is unique.
+  That is, if two trees have the same pre-oreder traversal, then we know they are identical trees in values and structure.
+  A pre-order traversal always starts at the root and, from there, the path we take is defineed by the traversal.
+  Now consider the subtree problem, if T2's pre-order traversal is a substring of T1's pre-order traversal, then T2's root element
+  must be found in T1. If we do a pre-order traversal from this element in T1, we will follow an identical path to T2's traversal.
+  Therefor T2 is a subtree of T1.
+  This approach takes O(n+m) time and O(n+m) space.
+  
+    boolean containsTree(TreeNode t1, TreeNode t2){
+      StringBuilder string1 = new StringBuilder();
+      StringBuilder string2 = new StringBuilder();
+      getOrderString(t1, string1);
+      getOrderString(t2, string2);
+      return string1.indexOf(string2.toString()) != -1;
+    }
+    void getOrderString(TreeNode node, StringBuilder sb){
+      if (node == null){
+        sb.append("X");
+        return;
+      }
+      sb.append(node.data + " "); //add root
+      getOrderString(node.left, sb); //add left
+      getOrderString(node.right, sb); //add right
+    }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2
+  This approach is to search through the larger tree, T1. 
+  Each time a node in T1 mathches the root in T2, call matchTree.
+  The matchTree method will call the subtrees to see if they are identical.
+  
+    boolean containsTree(TreeNode t1, TreeNode t2){
+      if (t2 == null) return true; //The empty tree is always a subtree
+      return subTree(t1, t2);
+    }
+    boolean subTree(TreeNode t1, TreeNode t2){
+      if (t1 == null){
+        return false; //big tree empty & subtree still not found
+      } else if (t1.value == t2.value && matchTree(t1, t2)){
+        return true;
+      }
+      return subTree(t1.left, t2) || subTree(t1.right, t2);
+    }
+    boolean matchTree(TreeNode t1, TreeNode t2){
+      if (t1 == null && t2 == null){
+        retur true; //nothing left in the subtree
+      } else if (t1 == null || t2 == null){
+        return false; 
+      } else if (t1.value != t2.value){
+        return false;// values don't match
+      } else {
+      return matchTree(t1.left, t2.left) && matchTree(t1.right, t2.right);
+    }
+=============================================================================================================================
+7. Random Node
+    You are implementing a binary search tree class from scratch, which, in addition to insert, find, and delete, has a method
+    getRandomNode() which returns a random node from the tree. All nodes should be equally likely to be choosen.
+    Design and implement an algorithm to getRandomNode(), and explain how you would implement the rest of the methods.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+  We can copy all the nodes to an array, and return a random element in the array.
+  This solution will take O(N) time and O(N) space.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+  We can label all the nodes with an index from 1 to N and label them in binary search tree order(that is in-order traversal).
+  Then we call getRandomNode, we generate a random index between 1 and N.
+  Then we can use the binary search tree search to find this index.
+  However, this leads to a problem, when we insert a node or delete a node, all of the nodes might need to be updated.
+  This can take O(N) time.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 3:
+  Since we have N nodes, we must return each node with 1/N probability.
+  The odds of picking something-anything-from the left must be the sum of each individual probability.
+  The odds of picking something from the left must have probability left-size * 1/N.
+  This shoud therefore be the odds of going left.
+  Likewise, the odds of going right is right-size * 1/N.
+  This means that each node must know the size of the nodes on the left and the size of the nodes on the right.
+  We can store a size variable in each node, and increment size on inserts and decrement size on deletes.
+  
+  class TreeNode{
+    private int value;
+    public TreeNode left;
+    public TreeNode right;
+    private int size;
+    public TreeNode(int data){
+      value = data;
+      size = 1;
+    }
+    public int getSize(){
+      return this.size;
+    }
+    public int getValue(){
+      return this.value;
+    }
+    public TreeNode getRandomNode(){
+      int leftSize = left == null ? 0 : left.size();
+      Random random = new Random();
+      int index = random.nextInt(size);
+      if (size < leftSize){
+        return left.getRandomNode();
+      } else if (index == leftSize){
+        return this;
+      } else {
+        return right.getRandomNode();
+      }
+    }
+    public void insert(int d){
+      if (d <= value){
+        if (left == null){
+          left = new TreeNode(d);
+        } else {
+        left.insert(d);
+      } else {
+        if (right == null){
+          right = new TreeNode(d);
+        } else {
+        right.insert(d);
+      }
+      size++;
+    }
+    public TreeNode find(int d){
+      if (d == value){
+        return this;
+      } else if (d < value){
+        return left != null ? left.find(d) : null;
+      } else {
+        return right != null ? right.find(d) : null;
+       }
+       return null;
+    }
+    
+  }
