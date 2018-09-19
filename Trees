@@ -512,3 +512,95 @@ Solution 3:
     }
     
   }
+=============================================================================================================================
+8. Paths with Sum
+  You are given a binary tree in which each node contains an integer value.
+  Design an algorithm to count the number of paths that sum to a given value.
+  The path does not need to start or end at the root or leaf, but it must go downwards.
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+  Brute Force
+  In this approach, we just look at all possible paths.
+  We traverse to each node, at each node, we recursively try all paths downwards, tracking the sum as we go.
+  As soon as we hit the target sum, we increment the total.
+  Consider that node at depth d will be "touched" by d nodes above it.
+  The runtime is O(NlogN).(in a balanced binary tree)
+  
+    int countPathsWithSum(TreeNode root, int target){
+      if (root == null){
+        return 0;
+      }
+      int pathFromRoot = countPathsWithSumFromNode(root, target, 0);
+      int pathOnLeft = countPathsWithSum(root.left, target);
+      int pathOnRight = countPathsWithSum(root.right, target);
+      return pathFromRoot + pathOnLeft + pathOnRight;
+    }
+    private int countPathsWithSumFromNode(TreeNode root, int targetSum, int currentSum){
+      if (root == null){ //base case
+        return 0;
+      }
+      currentSum += root.value;
+      int total = 0;
+      if (currentSum == targetSum){
+        total++;
+      }
+      total += countPathsWithSumFromNode(root.left, targetSum, currentSum);
+      total += countPathsWithSumFromNode(root.right, targetSum, currentSum);
+      return total;
+    }
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+  Let's isolate a given path and treat it as an array. 
+  Consider a path like:
+  index: 0  1  2  3   4   5  6  7  8
+        10->5->1->2->-1->-1->7->1->2
+  We need to know how many contiguous subsequences in this array sum to a target sum.
+  Since we are just looking for the number of paths, we can use a hash table.
+  We can interate through the array, build a hash table that maps from a currentSum to the number of times we have seen that sum.
+  So for each element(y) in the array, look up currentSum(y) - targetSum in the hash table.
+  The number in the hash table will tell you the number of paths with sum targetSum that end at element y.
+  Let's look at the example above.
+  At index 7, the value of currentSum(7) is 24. If taregetSum is 8, then we look up 16 in the hash table.
+  This would have a value of 2 (originating from index 2 and inde5).
+  As we can see above, indexes 3 through 7 and indexes 6 through 7 have sums of 8.
+  Let's review this on a tree:
+    as we visit each node:
+    1. Track its currentSum. We'll take this in as a parameter and immediately increment it by node.value.
+    2. Look up currentSum - targetSum in the hash table. The value there indicates the total number. Set the totalPaths to this value.
+    3. If currentSum equals to tagetSum, then, there's one additional path that starts at the root. Increment the totalPahts.
+    4. Add currentSum to the hash table (incrementing the value of it's already there).
+    5. Recurse left and right, counting the number of pahts with sum targetSum.
+    6. After we're done recursing left and right, decrement the value of currentSum in the hash table.
+       This is essentially backing out of our work; 
+       it reverses the changes to the hash table so that other nodes don't use it (since we're done with node).
+    This algorithm will take O(N) time.
+       
+     int countPahtsWithSum(TreeNode root, int targetSum){
+        return countPahtsWithSumToNode(root, targetSum, 0, new HashMap<Integer, Integer>());
+     }
+     int countPahtsWithSumToNode(TreeNode node, int targetSum, int currentSum, HashMap<Integer, Integer> map){
+       if (root == null){ //base case
+            return 0;
+          }
+          //Count pahts with sum ending at the current node
+          currentSum += node.value;
+          int sum = currentSum - targetSum;
+          int totalPahts = map.getOrDefault(sum, 0);
+          if (currentSum == targetSum){
+            totalPaths++;
+          }
+          //Increment map, recurse, then decrement map
+          incrementHashTable(map, currentsSum, 1);
+          total += countPahtsWithSumToNode(root.left, targetSum, currentSum, map);
+          total += countPahtsWithSumToNode(root.right, targetSum, currentSum, map);
+          incrementHashTable(map, currentSum, -1);
+          return totalPahts.
+     }
+     void incrementHashTable(HashMap<Integer, Integer> map, int key, int delta){
+      int newCount = map.getOrDefault(key, 0) + 1;
+      if (newCount == 0){ //Remove wehn zero to redure space usage
+        map.remove(key);
+      } else {
+      map.put(key, newCount);
+     }
+  
