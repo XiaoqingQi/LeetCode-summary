@@ -981,3 +981,61 @@ class Solution {
         return node;
     }
 }
+=============================================================================================================
+13 Kth Smallest Element in a BST
+  Given a binary search tree, write a function kthSmallest to find the kth smallest element in it.
+
+  Note:
+
+  You may assume k is always valid, 1 ≤ k ≤ BST's total elements.
+------------------------------------------------------------------------------------------------------------
+Solution 1:
+  We know the in-order traversal of a BST is an sorted sequence, then we can find the kth element int the sorted sequence.
+  This algorithm takes O(n) time, where n is the number of nodes in this BST.
+  public int kthElement(TreeNode root, int k){
+    Stack<TreeNode> stack = new Stack<>();
+    TreeNode node = root;
+    while(!stack.isEmpty() || node != null){
+      if (node != null){
+        stack.push(node);
+        node = node.left;
+      } else {
+        node = stack.pop();
+        k--;
+        if (k == 0){
+          return node.val;
+        }
+        node = node.right;
+      }
+    }
+    return -1;
+  }
+------------------------------------------------------------------------------------------------------------
+Solution 2:
+  We can modify the data structure of TreeNode, add filed leftCount to record the number of left subtree.
+  The current node named root:
+    if k == root.leftCount + 1, then return root;
+    if k > root.leftCount, k = k - (root.leftCount+1), root = root.right;
+    if k < root.leftCount, root = root.left;
+  This algorithm takes O(height of BST).
+  
+  class TreeNode{
+    int val;
+    TreeNode left;
+    TreeNode right;
+    int leftCount;
+    public TreeNode(int val){
+      this.val = val;
+    }
+  }
+  class Solution{
+    public int kthElement(TreeNode root, int k){
+        if (k == root.leftCount + 1){
+          return root.val;
+        } else if(k < root.leftCount + 1) {
+          return kthElement(root.left, k);
+        } else {
+          return kthElement(root.right, k-root.leftCount-1);
+        }
+    }
+  }
