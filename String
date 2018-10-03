@@ -245,7 +245,7 @@ public class URLify {
     Both num1 and num2 contains only digits 0-9.
     Both num1 and num2 does not contain any leading zero.
     You must not use any built-in BigInteger library or convert the inputs to integer directly.
-
+-------------------------------------------------------------------------------------------------------------------------
     class Solution {
     public String addStrings(String num1, String num2) {
         if (num1 == null){
@@ -267,3 +267,88 @@ public class URLify {
     }
     
 }
+===========================================================================================================================
+7. Longest Common Prefix
+    Write a function to find the longest common prefix string amongst an array of strings.
+
+    If there is no common prefix, return an empty string "".
+
+    Example 1:
+
+    Input: ["flower","flow","flight"]
+    Output: "fl"
+
+    Example 2:
+
+    Input: ["dog","racecar","car"]
+    Output: ""
+    Explanation: There is no common prefix among the input strings.
+    
+    Note:
+
+    All given inputs are in lowercase letters a-z.
+-------------------------------------------------------------------------------------------------------------------------
+Solution 1:
+    Horizontal scanning
+    This algorithm iterates through the strings[s1...sn], find at each iteration i the longest common prefix of strings 
+    lcp(s1...si), if lcp(s1...si) is an empty string, the algorithm ends. Otherwise the algorithm returns lcp(s1...sn) after
+    n itereations.
+        public String longestCommonPrefix(String[] strs) {
+            if (strs.length == 0) return "";
+            String prefix = strs[0];
+            for (int i = 1; i < strs.length; i++)
+                while (strs[i].indexOf(prefix) != 0) {
+                    prefix = prefix.substring(0, prefix.length() - 1);
+                    if (prefix.isEmpty()) return "";
+                }        
+            return prefix;
+        }
+-------------------------------------------------------------------------------------------------------------------------
+Solution 2:
+    Vertical scanning
+    We compare characters from top to dowm on the same column before moving on to the next column.
+    
+        public String longestCommonPrefix(String[] strs) {
+            if (strs == null || strs.length == 0) return "";
+            for (int i = 0; i < strs[0].length() ; i++){
+                char c = strs[0].charAt(i);
+                for (int j = 1; j < strs.length; j ++) {
+                    if (i == strs[j].length() || strs[j].charAt(i) != c)
+                        return strs[0].substring(0, i);             
+                }
+            }
+            return strs[0];
+         }
+ -------------------------------------------------------------------------------------------------------------------------
+ Solution 3:
+    Divide and Conquer
+    We split lcp(si...sj) problem into two subproblems lcp(si...sm), lcp(sm+1...sj), where m is (i+j)/2.
+    We use their solutions lcpLeft and lcpRight to construct the main problem lcp(si...sj).
+    To accomplish this, we compare one by one characters of lcpLeft and lcpRight till there is no character match.
+    The found common prefix of lcpLeft and lcpRight is the solution of lcp(si...sj).
+    
+        public String longestCommonPrefix(String[] strs) {
+            if (strs == null || strs.length == 0) return "";    
+                return longestCommonPrefix(strs, 0 , strs.length - 1);
+        }
+
+        private String longestCommonPrefix(String[] strs, int l, int r) {
+            if (l == r) {
+                return strs[l];
+            }
+            else {
+                int mid = (l + r)/2;
+                String lcpLeft =   longestCommonPrefix(strs, l , mid);
+                String lcpRight =  longestCommonPrefix(strs, mid + 1,r);
+                return commonPrefix(lcpLeft, lcpRight);
+           }
+        }
+
+        String commonPrefix(String left,String right) {
+            int min = Math.min(left.length(), right.length());       
+            for (int i = 0; i < min; i++) {
+                if ( left.charAt(i) != right.charAt(i) )
+                    return left.substring(0, i);
+            }
+            return left.substring(0, min);
+        }
