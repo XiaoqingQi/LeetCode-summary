@@ -98,11 +98,12 @@ Solution 1:
   So if we keep track of the minimum at each state, we would be able to know the minumum.
   We can do this by having each node record that what the minimum beneath itself is.
   So to find the minimum, we just look at what the top element thinks is the min.
-  import java.util.Stack;
+  
+import java.util.Stack;
 
 public class StackMin extends Stack<NodeWithMin> {
     public void push(int value){
-        int newMin = Math.max(value, min());
+        int newMin = Math.min(value, min());
         super.push(new NodeWithMin(value, newMin));
     }
 
@@ -152,6 +153,43 @@ public class StackMin extends Stack<Integer> {
         } else {
             return minStack.peek();
         }
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------
+Solution 3 :
+class MinStack {
+    int min;
+    Stack<Integer> stack;
+
+    /** initialize your data structure here. */
+    public MinStack() {
+        this.stack = new Stack<>();
+        this.min = Integer.MAX_VALUE;
+    }
+    public void push(int x) {
+        if (x <= this.min){
+            //push the old minimux value into the stack when the current min value changes after pushing an value
+            stack.push(this.min);
+            this.min = x;
+        }
+        stack.push(x);
+    }
+    
+    public void pop() {
+        int val = stack.pop();
+        // if pop operation could result in the changing of the current minimum value, 
+        // pop twice and change the current minimum value to the last minimum value.
+        if (val == this.min){
+            this.min = stack.pop();
+        }
+    }
+    
+    public int top() {
+        return stack.peek();
+    }
+    
+    public int getMin() {
+        return this.min;
     }
 }
 =============================================================================================================================
