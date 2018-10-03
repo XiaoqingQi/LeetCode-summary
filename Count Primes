@@ -1,0 +1,30 @@
+===============================================================================================================================
+Count the number of prime numbers less than a non-negative number, n.
+
+Example:
+
+Input: 10
+Output: 4
+Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
+-------------------------------------------------------------------------------------------------------------------------------
+Solution:
+We use an array of length n to record whether a number is a prime or not.
+We start from number 2 and use a variable count to record the number of prime numbers less than n.
+If it is a prime number, then we let count variable plus 1, and set the numbers who are multiple of this number to non-prime number.
+
+
+  public int countPrimes(int n) {
+        boolean[] nonPrime = new boolean[n];
+        int count = 0;
+        for (int i = 2; i < n; i++){
+            if (nonPrime[i] == false){
+                count++;
+                for (int j = 2; i*j < n; j++){
+                    nonPrime[i*j] = true;
+                }
+            }
+        }
+        return count;
+    }
+===============================================================================================================================
+
