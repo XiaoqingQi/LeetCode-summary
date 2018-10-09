@@ -1,0 +1,41 @@
+==============================================================================================================================
+1.Top K Frequent Elements
+Given a non-empty array of integers, return the k most frequent elements.
+
+Example 1:
+
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+
+Example 2:
+
+Input: nums = [1], k = 1
+Output: [1]
+------------------------------------------------------------------------------------------------------------------------------
+Solution:
+We use PriorityQueue(MaxHeap> to store elements.
+Each time we poll an element from PriorityQueue for k times.
+  class Solution {
+    public List<Integer> topKFrequent(int[] nums, int k) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++){
+            map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
+        }
+        Set<Map.Entry<Integer, Integer>> set = map.entrySet();
+        PriorityQueue<Map.Entry<Integer, Integer>> pq = new PriorityQueue<>(set.size(), 
+                                                                            new Comparator<Map.Entry<Integer, Integer>>(){
+            public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2){
+                return o2.getValue() - o1.getValue();
+            }
+        });
+        for (Map.Entry<Integer, Integer> entry : set){
+            pq.add(entry);
+        }
+        List<Integer> res = new ArrayList<>();
+        for (int i = 0; i < k; i++){
+            res.add(pq.poll().getKey());
+        }
+        return res;
+    }
+}
+==============================================================================================================================
