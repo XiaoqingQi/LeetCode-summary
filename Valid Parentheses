@@ -74,6 +74,10 @@ For example, given n = 3, a solution set is:
 ]
 ----------------------------------------------------------------------------------------------------------------------------
 Solution 1:
+    We  only add '(' and ')' that we know will guarantee us a solution.
+    Once we add a '(' we will then discard it and try a ')' which can only close a valid '('.
+    Each of these steps are recursively called.
+    
     public List<String> generateParenthesis(int n) {
         List<String> list = new ArrayList<String>();
         backtrack(list, "", 0, 0, n);
@@ -81,7 +85,7 @@ Solution 1:
     }
     
     public void backtrack(List<String> list, String str, int open, int close, int max){
-        
+        //base case
         if(str.length() == max*2){
             list.add(str);
             return;
@@ -93,15 +97,14 @@ Solution 1:
             backtrack(list, str+")", open, close+1, max);
     }
 ----------------------------------------------------------------------------------------------------------------------------
-Solution 2:
 public class GenerateParentheses {
     public List<String> generateParenthesis(int n) {
-        // write your code here
         List<String> rs = new ArrayList<>();
         dfs(rs, new StringBuilder(), n, n);
         return rs;
     }
     public void dfs(List<String> rs, StringBuilder sb, int left, int right){
+    //base case
         if (left == 0 && right == 0){
             rs.add(sb.toString());
             return;
@@ -110,17 +113,15 @@ public class GenerateParentheses {
         if (left > 0){
             sb.append('(');
             dfs(rs, sb, left - 1, right);
+            //backtracking
             sb.setLength(length);
         }
         if (right > left){
             sb.append(')');
             dfs(rs, sb, left, right - 1);
+            //backtracking
             sb.setLength(length);
         }
-    }
-    public static void main(String[] args){
-        GenerateParentheses gp = new GenerateParentheses();
-        gp.generateParenthesis(3);
     }
 }
 ============================================================================================================================
