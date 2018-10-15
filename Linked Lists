@@ -553,3 +553,21 @@ public class LoopDetectionOfLinkedList {
     }
 }
 ===========================================================================================================================
+10. Find the Duplicate Number
+    Given an array nums containing n + 1 integers where each integer is between 1 and n (inclusive), prove that at least one duplicate number must exist. Assume that there is only one duplicate number, find the duplicate one.
+
+Example 1:
+
+Input: [1,3,4,2,2]
+Output: 2
+
+Example 2:
+
+Input: [3,1,3,4,2]
+Output: 3
+---------------------------------------------------------------------------------------------------------------------------
+Solution:
+For each pair of index i and value v(i), the "next" value v(j) is at index v(i), we reduce this problem to cycle detection.
+Each number is numbers is between 1 and n, it will necessarily point to an index that exists.
+Because there are duplicate number, there must be a cycle.
+Traversing the array from numbers[0] is like traversing a cyclic linked list.
