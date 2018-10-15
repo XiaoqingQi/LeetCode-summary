@@ -571,3 +571,25 @@ For each pair of index i and value v(i), the "next" value v(j) is at index v(i),
 Each number is numbers is between 1 and n, it will necessarily point to an index that exists.
 Because there are duplicate number, there must be a cycle.
 Traversing the array from numbers[0] is like traversing a cyclic linked list.
+
+    class Solution {
+    public int findDuplicate(int[] nums) {
+        // Find the intersection point of the two runners.
+        int tortoise = nums[0];
+        int hare = nums[0];
+        do {
+            tortoise = nums[tortoise];
+            hare = nums[nums[hare]];
+        } while (tortoise != hare);
+
+        // Find the "entrance" to the cycle.
+        int ptr1 = nums[0];
+        int ptr2 = tortoise;
+        while (ptr1 != ptr2) {
+            ptr1 = nums[ptr1];
+            ptr2 = nums[ptr2];
+        }
+
+        return ptr1;
+    }
+}
