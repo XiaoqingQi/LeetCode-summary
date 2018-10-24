@@ -1,0 +1,88 @@
+==============================================================================================================================
+Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+Example:
+
+Input: [10,9,2,5,3,7,101,18]
+Output: 4 
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4. 
+
+Note:
+
+    There may be more than one LIS combination, it is only necessary for you to return the length.
+    Your algorithm should run in O(n2) complexity.
+
+Follow up: Could you improve it to O(n log n) time complexity?
+-------------------------------------------------------------------------------------------------------------------------------
+Solution 1: Brute Force
+The simplest way is to try to find all increasing subsequences and then returning the maximum length of LIS.
+In order to do this, we make use of the recursion fuction lengthOfLIS which returns the length of the LIS possible from
+the current element onwards. Inside each function, we consider two cases:
+1. The current element is bigger than the previous element included in the LIS.
+  In this case, we can include the current element in the LIS, thus, we find out the length of the LIS including the current element.
+  Further, we can find the length of the LIS by not including it in the LIS.
+  The value returned by the current function call is, the maximum out of the two lengths.
+2. The current element is smaller than the previous element in cluded int the LIS.
+  In this case, we can't include the current element in the LIS.
+  Thus, we find out only the length of the LIS possible by not including the current element in the LIS, which is returned 
+  by the current function call.
+  
+Complexity Analysis
+
+    Time complexity : O(2^n). Size of recursion tree will be 2^n.
+    Space complexity : O(n^2). memo array of size n*n is used.
+    
+  
+  class Solution {
+    public int lengthOfLIS(int[] nums) {
+        return lenghtOfLIS(nums, Integer.MIN_VALUE, 0);  
+    }
+    private int lenghtOfLIS(int[] nums, int prev, int curpos){
+        if (curpos == nums.length){
+            return 0;
+        }
+        int taken = 0, nottaken;
+        if (nums[curpos] > prev){
+            taken = 1 + lenghtOfLIS(nums, nums[curpos], curpos+1);
+        }
+        nottaken = lenghtOfLIS(nums, prev, curpos+1);
+        return Math.max(taken, nottaken);
+    }
+}
+-------------------------------------------------------------------------------------------------------------------------------
+Solution 2: Recursion with memorization
+  In the previous approach, many recursive calls had to made again and again with the same parameters. 
+  This redundancy can be eliminated by storing the results obtained for a particular call in a 2-d memorization array 
+  memo[i][j] represents the length of the LIS possible using nums[i] as the previous element considered to be 
+  included/not included in the LIS, with nums[j] as the current element considered to be included/not included in the LIS. 
+
+  Complexity Analysis
+
+    Time complexity : O(n^2). Size of recursion tree can go upto n^2.
+    Space complexity : O(n^2). memo array of n*n is used.
+
+  class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int[][] memo = new int[nums.length+1][nums.length];
+        for (int[] row : memo){
+            Arrays.fill(row, -1);
+        }
+        return helper(nums, memo, -1, 0);  
+    }
+    private int helper(int[] nums, int[][] memo, int prevIndex, int curpos){
+        if (curpos == nums.length){
+            return 0;
+        }
+        if (memo[prevIndex+1][curpos] >= 0){
+            return memo[prevIndex+1][curpos];
+        }
+        int taken = 0, nottaken;
+        if (prevIndex < 0 || nums[curpos] > nums[prevIndex]){
+            taken = 1 + helper(nums, memo, curpos, curpos+1);
+        }
+        nottaken = helper(nums, memo, prevIndex, curpos+1);
+        memo[prevIndex+1][curpos] = Math.max(taken, nottaken);
+        return memo[prevIndex+1][curpos];
+    }
+}
+-------------------------------------------------------------------------------------------------------------------------------
