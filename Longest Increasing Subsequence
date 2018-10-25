@@ -86,3 +86,38 @@ Solution 2: Recursion with memorization
     }
 }
 -------------------------------------------------------------------------------------------------------------------------------
+Solution 3: Dynamic Programming
+This method relies on the fact that the LIS possibe upto the ith element in a given array is independent of the elements coming
+later on in the array.
+Thus, if we know the length of the LIS upto ith index, we can figure out the length of the LIS possible by including
+the (i+1)th element based on the elements with indices j (0 <= j < i).
+We make use of a dp array to store the required data.
+dp[i] represents the length of the LIS possible considering the arry elements upto the ith index,
+by necessarily including the ith element.
+In order to find out dp[i], we need to try to append the current element(nums[i]) in every possible incresing subsequences
+upto (i-1)th index, thus that the new sequence formed by adding the current element is also a increasing subsequence.
+dp[i] = max(dp[j]) + 1
+At the end ,the maximum out of all the dp[i]s to determine the final result.
+res = max(dp[i])
+
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if (nums.length == 0){
+            return 0;
+        }
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        int maxLen = 1;
+        for (int i = 1; i < nums.length; i++){
+            int maxVal = 0;
+            for (int j = 0; j < i; j++){
+                if (nums[i] > nums[j]){
+                    maxVal = Math.max(maxVal, dp[j]);
+                }
+            }
+            dp[i] = maxVal + 1;
+            maxLen = Math.max(maxLen, dp[i]);
+        }
+        return maxLen;
+ }
+==============================================================================================================================
