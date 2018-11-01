@@ -1,0 +1,84 @@
+==============================================================================================================================
+1. Implement a HashMap
+------------------------------------------------------------------------------------------------------------------------------
+class MyHashMap {
+  private static final int SIZE = 32;
+  static class Entry {
+    String key;
+    String value;
+    Entry next;
+    public Entry (String key, String value) {
+      this.key = key;
+      this.value = value;
+      this.next = null;
+    }
+  }
+  private Entry[] table;
+  public MyHashMap() {
+    table = new Entry(SIZE);
+  }
+  public void put(String k, String v) {
+    int hash = k.hashCode() % SIZE;
+    Entry entry = new Entry(k, v);
+    if (table[hash] == null) {
+      table[hash] = entry;
+    } else {
+      addOrUpdateNode(table[hash], entry);
+    }
+  }
+  public String getKey(String key) {
+    int hash = key.hashCode() % SIZE;
+    Entry head = table[hash];
+    while (head != null) {
+      if (head.key.equals(key)) {
+         return head.val;
+      } else {
+         head = head.next;
+      }
+    }
+    return null;
+  }
+  public boolean containsKey(String key) {
+    int hash = key.hashCode() % SIZE;
+    Entry head = table[hash];
+    while (head != null) {
+      if (head.key.equals(key)) {
+         return true;
+      } else {
+         head = head.next;
+      }
+    }
+    return false;
+  }
+  public void remove(String key) {
+    int hash = key.hashCode() % SIZE;
+    Entry dummy = new Entry("0", "0");
+    Entry head = table[hash];
+    dummy.next = head;
+    Entry prev = dummy;
+    while (head != null) {
+      if (head.key.equals(key)) {
+         prev.next = head.next;
+         return;
+      } else {
+         prev = head;
+         head = head.next;
+      }
+    }
+    table[hash] = dummy.next;
+  }
+  private void addOrUpdateNode(Entry e1, Entry e2) {
+    Entry head = e1, prev = null;
+    while (head != null) {
+      if (head.key.equals(e2.key)) {
+        head.value = e2.value;
+        return;
+      } else {
+        prev = head;
+        head = head.next;
+      }
+    }
+    prev.next = e2;
+  }
+}
+==============================================================================================================================
